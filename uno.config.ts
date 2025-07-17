@@ -9,6 +9,28 @@ import {
 } from 'unocss'
 
 export default defineConfig({
+  theme: {
+    colors: {
+      primary: {
+        100: '#FFE2D4', // 最浅
+        200: '#FFDDCF',
+        300: '#FE9B6A',
+        400: '#F8996A',
+        500: '#F6631B', // 核心主色
+        600: '#F6590D', // 更深的主色
+      },
+    },
+  },
+  postprocess: (util) => {
+    // 自动将 px 替换为 2 倍 rpx
+    util.entries = util.entries.map(([key, value]) => {
+      if (typeof value === 'string' && value.includes('px')) {
+        // 匹配 14px 这种单位，转为 28rpx
+        value = value.replace(/(\d+(\.\d+)?)px/g, (_, num) => `${Number.parseFloat(num) * 2}rpx`)
+      }
+      return [key, value]
+    })
+  },
   presets: [
     presetUni({
       attributify: {
@@ -51,15 +73,4 @@ export default defineConfig({
     ['pt-safe', { 'padding-top': 'env(safe-area-inset-top)' }],
     ['pb-safe', { 'padding-bottom': 'env(safe-area-inset-bottom)' }],
   ],
-  theme: {
-    colors: {
-      /** 主题色，用法如: text-primary */
-      primary: 'var(--wot-color-theme,#0957DE)',
-    },
-    fontSize: {
-      /** 提供更小号的字体，用法如：text-2xs */
-      '2xs': ['20rpx', '28rpx'],
-      '3xs': ['18rpx', '26rpx'],
-    },
-  },
 })

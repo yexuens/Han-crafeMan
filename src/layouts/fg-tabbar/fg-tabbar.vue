@@ -4,11 +4,12 @@ import { tabbarStore } from './tabbar'
 import { tabbarList as _tabBarList, cacheTabbarEnable, selectedTabbarStrategy, TABBAR_MAP } from './tabbarList'
 
 const customTabbarEnable
-= selectedTabbarStrategy === TABBAR_MAP.CUSTOM_TABBAR_WITH_CACHE
-  || selectedTabbarStrategy === TABBAR_MAP.CUSTOM_TABBAR_WITHOUT_CACHE
+  = selectedTabbarStrategy === TABBAR_MAP.CUSTOM_TABBAR_WITH_CACHE
+    || selectedTabbarStrategy === TABBAR_MAP.CUSTOM_TABBAR_WITHOUT_CACHE
 
 /** tabbarList 里面的 path 从 pages.config.ts 得到 */
 const tabbarList = _tabBarList.map(item => ({ ...item, path: `/${item.pagePath}` }))
+
 function selectTabBar(name: number) {
   const url = tabbarList[name].path
   tabbarStore.setCurIdx(name)
@@ -19,16 +20,15 @@ function selectTabBar(name: number) {
     uni.navigateTo({ url })
   }
 }
+
 onLoad(() => {
   // 解决原生 tabBar 未隐藏导致有2个 tabBar 的问题
   const hideRedundantTabbarEnable = selectedTabbarStrategy === TABBAR_MAP.CUSTOM_TABBAR_WITH_CACHE
   hideRedundantTabbarEnable
   && uni.hideTabBar({
     fail(err) {
-      console.log('hideTabBar fail: ', err)
     },
     success(res) {
-      console.log('hideTabBar success: ', res)
     },
   })
 })

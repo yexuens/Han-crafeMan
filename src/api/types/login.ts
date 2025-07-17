@@ -3,8 +3,7 @@
  */
 export interface IUserInfoVo {
   id: number
-  username: string
-  avatar: string
+  role: number
   token: string
 }
 
@@ -25,6 +24,7 @@ export interface ICaptcha {
   uuid: string
   image: string
 }
+
 /**
  * 上传成功的信息
  */
@@ -38,6 +38,7 @@ export interface IUploadSuccessInfo {
   fileBusinessType: string
   fileSize: number
 }
+
 /**
  * 更新用户信息
  */
@@ -46,6 +47,7 @@ export interface IUpdateInfo {
   name: string
   sex: string
 }
+
 /**
  * 更新用户信息
  */

@@ -10,6 +10,7 @@ function getMode() {
   const modeFlagIndex = args.findIndex(arg => arg === '--mode')
   return modeFlagIndex !== -1 ? args[modeFlagIndex + 1] : args[0] === 'build' ? 'production' : 'development' // 默认 development
 }
+
 // 获取环境变量的范例
 const env = loadEnv(getMode(), path.resolve(process.cwd(), 'env'))
 const {
@@ -123,6 +124,7 @@ export default defineManifestConfig({
       // 是否启用 ES6 转 ES5
       es6: true,
       minified: true,
+      swc: true,
     },
     optimization: {
       subPackages: true,

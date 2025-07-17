@@ -35,8 +35,16 @@
       {
         "iconPath": "static/tabbar/example.png",
         "selectedIconPath": "static/tabbar/exampleHL.png",
-        "pagePath": "pages/about/about",
-        "text": "关于",
+        "pagePath": "pages/publish/index",
+        "text": "发布需求",
+        "icon": "i-carbon-code",
+        "iconType": "unocss"
+      },
+      {
+        "iconPath": "static/tabbar/example.png",
+        "selectedIconPath": "static/tabbar/exampleHL.png",
+        "pagePath": "pages/mine/index",
+        "text": "我的",
         "icon": "i-carbon-code",
         "iconType": "unocss"
       }
@@ -53,19 +61,21 @@
       }
     },
     {
-      "path": "pages/about/about",
+      "path": "pages/mine/index",
       "type": "page",
       "layout": "tabbar",
       "style": {
-        "navigationBarTitleText": "关于"
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "首页"
       }
     },
     {
-      "path": "pages/about/alova",
+      "path": "pages/publish/index",
       "type": "page",
-      "layout": "default",
+      "layout": "tabbar",
       "style": {
-        "navigationBarTitleText": "Alova 请求演示"
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "首页"
       }
     }
   ],
@@ -73,6 +83,24 @@
     {
       "root": "pages-sub",
       "pages": [
+        {
+          "path": "craft_man_reg/index",
+          "type": "page",
+          "layout": "customBar",
+          "style": {
+            "navigationStyle": "custom",
+            "disableScroll": true
+          }
+        },
+        {
+          "path": "craft_man_reg_auth/index",
+          "type": "page",
+          "layout": "customBar",
+          "style": {
+            "navigationStyle": "custom",
+            "disableScroll": true
+          }
+        },
         {
           "path": "demo/index",
           "type": "page",
