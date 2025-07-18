@@ -16,6 +16,7 @@ export const iconRes = {
   phoneCallIcon: 'https://cdn.juesedao.cn/mdy/ec055151a1c8499699b9ee98598d575b',
   serviceIcon: 'https://cdn.juesedao.cn/mdy/de22285b420d4a94b52c02d56ee8d69c',
   funIcon: 'https://cdn.juesedao.cn/mdy/13f3062ae36f4d96839f277ee3765d4e',
+  addIcon: 'https://cdn.juesedao.cn/mdy/cdc7d5b86ec140469e6f85deeece7c9b',
 
 }
 export type IconResKeyType = (keyof typeof iconRes)
