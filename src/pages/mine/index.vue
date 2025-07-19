@@ -10,13 +10,11 @@
 </route>
 
 <script lang="ts" setup>
-
+import FirstTakeOrderGuide from '@/components/firstTakeOrderGuide.vue'
 </script>
 
 <template>
-  <view>
-    minesfaas
-  </view>
+  <first-take-order-guide />
 </template>
 
 <style lang="scss" scoped>

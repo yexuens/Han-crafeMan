@@ -108,6 +108,15 @@
           "style": {
             "navigationBarTitleText": "分包页面"
           }
+        },
+        {
+          "path": "first_take_order_authentication/index",
+          "type": "page",
+          "layout": "customBar",
+          "style": {
+            "navigationStyle": "custom",
+            "disableScroll": true
+          }
         }
       ]
     }
