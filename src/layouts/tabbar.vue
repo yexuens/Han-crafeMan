@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <view>
+  <view style="pointer-events: none">
     <slot />
   </view>
 </template>

@@ -28,42 +28,42 @@ const unitList = ref([
   {
     name: '200x1200mm',
     refPrice: 24,
-    userPrice: 0,
+    userPrice: null,
   },
   {
     name: '300x600mm',
     refPrice: 18,
-    userPrice: 0,
+    userPrice: null,
   },
   {
     name: '600x600mm',
     refPrice: 28,
-    userPrice: 0,
+    userPrice: null,
   },
   {
     name: '800x800mm',
     refPrice: 35,
-    userPrice: 0,
+    userPrice: null,
   },
   {
     name: '400x800mm',
     refPrice: 22,
-    userPrice: 0,
+    userPrice: null,
   },
   {
     name: '750x1500mm',
     refPrice: 58,
-    userPrice: 0,
+    userPrice: null,
   },
   {
     name: '900x1800mm',
     refPrice: 75,
-    userPrice: 0,
+    userPrice: null,
   },
   {
     name: '300x300mm',
     refPrice: 12,
-    userPrice: 0,
+    userPrice: null,
   },
 ])
 
