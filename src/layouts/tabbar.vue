@@ -2,8 +2,8 @@
 </script>
 
 <template>
-  <view style="pointer-events: none">
+  <div>
     <slot />
-  </view>
+  </div>
 </template>
 `

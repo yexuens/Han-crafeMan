@@ -1,14 +1,6 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import type { IconResKeyType } from '@/constants'
 import { iconRes } from '@/constants'
-
-defineOptions({
-  options: {
-    virtualHost: true,
-    addGlobalClass: true,
-    styleIsolation: 'shared',
-  },
-})
 
 const { iconName, size, customClass } = withDefaults(defineProps<Props>(), {
   height: 16,
@@ -16,22 +8,23 @@ const { iconName, size, customClass } = withDefaults(defineProps<Props>(), {
 })
 
 interface Props {
-  iconName: IconResKeyType
+  iconName?: IconResKeyType
   size?: number
   height?: number
   width?: number
   customClass?: string
+  customUrl?: string
 }
 </script>
 
 <template>
   <image
-    :style="`width: ${size ? size * 2 : width * 2}rpx;height: ${size ? size * 2 : height * 2}rpx`"
     :class="customClass"
-    :src="iconRes[iconName]"
+    :src="customUrl ? customUrl : iconRes[iconName]"
+    :style="`width: ${size ? size * 2 : width * 2}rpx;height: ${size ? size * 2 : height * 2}rpx`"
+    class="block"
   />
 </template>
 
 <style scoped>
-
 </style>

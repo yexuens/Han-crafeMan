@@ -59,4 +59,13 @@ button::after {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+page {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.center {
+  align-items: center;
+  display: flex;
+}
 </style>

@@ -7,6 +7,7 @@ export const iconRes = {
   unitCheckBoxIcon: 'https://cdn.juesedao.cn/mdy/2be960057bb348cfb1dcdd1d2316d054',
   navigatorIcon: 'https://cdn.juesedao.cn/mdy/93976179457547cdbaf9d0fa3323291f',
   rightArrowIcon: 'https://cdn.juesedao.cn/mdy/7f4bf41a9d4041b1b8310228a7faac27',
+  rightArrowWhiteIcon: 'https://cdn.juesedao.cn/mdy/703d542c15d440a78cd70581eee5ce09',
   leftArrowIcon: 'https://cdn.juesedao.cn/mdy/314919405b5442ef87b0a6e7e9b0145e',
   leftArrowIconWhite: 'https://cdn.juesedao.cn/mdy/5f906449f9854a1d868a56f307236297',
   vrIcon: 'https://cdn.juesedao.cn/mdy/717daabecb0240c8bd0abbec1fd2452c',
@@ -17,6 +18,10 @@ export const iconRes = {
   serviceIcon: 'https://cdn.juesedao.cn/mdy/de22285b420d4a94b52c02d56ee8d69c',
   funIcon: 'https://cdn.juesedao.cn/mdy/13f3062ae36f4d96839f277ee3765d4e',
   addIcon: 'https://cdn.juesedao.cn/mdy/cdc7d5b86ec140469e6f85deeece7c9b',
+  pointIcon: 'https://cdn.juesedao.cn/mdy/c136aa8444f94c30aaabf75d43eb9400',
+  noticeIcon: 'https://cdn.juesedao.cn/mdy/ad3bb6f1c7524abd9b0f61ed055e6373',
+  checkedStatusIcon: 'https://cdn.juesedao.cn/mdy/103cd88dc64b4475a2c3c0fe31977ff2',
+  unCheckedStatusIcon: 'https://cdn.juesedao.cn/mdy/667c435dabf84aa0b061f6a788206102',
 
 }
 export type IconResKeyType = (keyof typeof iconRes)
