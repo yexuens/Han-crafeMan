@@ -1,5 +1,4 @@
 import { useUserStore } from '@/store'
-import { getEnvBaseUrl } from '@/utils'
 import { platform } from '@/utils/platform'
 import { stringifyQuery } from './queryString'
 
@@ -10,7 +9,7 @@ export type CustomRequestOptions = UniApp.RequestOptions & {
 } & IUniUploadFileOptions // 添加uni.uploadFile参数类型
 
 // 请求基准地址
-const baseUrl = getEnvBaseUrl()
+const baseUrl = 'https://mdy.juesedao.com'
 
 // 拦截器配置
 const httpInterceptor = {

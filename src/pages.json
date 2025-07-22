@@ -84,6 +84,15 @@
       "root": "pages-sub",
       "pages": [
         {
+          "path": "craft_man_certification/index",
+          "type": "page",
+          "layout": "customBar",
+          "style": {
+            "navigationStyle": "custom",
+            "disableScroll": true
+          }
+        },
+        {
           "path": "craft_man_reg/index",
           "type": "page",
           "layout": "customBar",
@@ -102,20 +111,12 @@
           }
         },
         {
-          "path": "demo/index",
+          "path": "user_requirement_list/index",
           "type": "page",
           "layout": "default",
           "style": {
-            "navigationBarTitleText": "分包页面"
-          }
-        },
-        {
-          "path": "first_take_order_authentication/index",
-          "type": "page",
-          "layout": "customBar",
-          "style": {
             "navigationStyle": "custom",
-            "disableScroll": true
+            "navigationBarTitleText": "首页"
           }
         }
       ]

@@ -32,7 +32,7 @@ import { imgRes } from '@/constants'
       <view class="relative w-full flex items-center justify-between rounded-12px bg-[#E3EEFB] px-24px py-32px">
         <image
           style="position:absolute" class="bottom-100px right-0 h-200px w-130px -z-1"
-          :src="imgRes.standingMouse2"
+          :src="imgRes.squirrelFront"
         />
         <view class="flex flex-col gap-y-7px">
           <view class="text-18px text-[#4D99FF] font-bold">

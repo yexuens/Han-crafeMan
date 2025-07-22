@@ -27,6 +27,7 @@ export default uniHelper({
     'jsdoc/require-returns-description': 'off',
     'ts/no-empty-object-type': 'off',
     'no-extend-native': 'off',
+    "dot-notation":'on'
   },
   formatters: {
     /**
