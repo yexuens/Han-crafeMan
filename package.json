@@ -102,7 +102,8 @@
     "pinia-plugin-persistedstate": "3.2.1",
     "sard-uniapp": "^1.17.1",
     "vue": "^3.4.21",
-    "z-paging": "2.8.7"
+    "z-paging": "2.8.7",
+    "zod": "^4.0.5"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.15.0",
@@ -136,7 +137,6 @@
     "eslint": "^9.29.0",
     "eslint-plugin-format": "^1.0.1",
     "lint-staged": "^15.2.10",
-    "openapi-ts-request": "^1.1.2",
     "postcss": "^8.4.49",
     "postcss-html": "^1.7.0",
     "postcss-scss": "^4.0.9",

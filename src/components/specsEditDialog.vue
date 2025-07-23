@@ -3,7 +3,7 @@ import { ref } from "vue";
 
 interface IProps {
   show: boolean;
-  specsList?: Array<unknown>;
+  specsList?: Array<any>;
   // onClose: () => void; // 移除 onClose，因为它将被 emit 替代
 }
 

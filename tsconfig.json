@@ -1,13 +1,21 @@
 {
   "compilerOptions": {
+    "strict": true,
     "composite": true,
-    "lib": ["esnext", "dom"],
+    "lib": [
+      "esnext",
+      "dom"
+    ],
     "baseUrl": ".",
     "module": "ESNext",
     "moduleResolution": "Node",
     "paths": {
-      "@/*": ["./src/*"],
-      "@img/*": ["./src/static/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@img/*": [
+        "./src/static/*"
+      ]
     },
     "resolveJsonModule": true,
     "types": [
@@ -26,7 +34,9 @@
     "skipLibCheck": true
   },
   "vueCompilerOptions": {
-    "plugins": ["@uni-helper/uni-types/volar-plugin"]
+    "plugins": [
+      "@uni-helper/uni-types/volar-plugin"
+    ]
   },
   "include": [
     "src/**/*.ts",
@@ -37,5 +47,7 @@
     "src/**/*.vue",
     "src/**/*.json"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
