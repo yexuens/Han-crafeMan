@@ -112,10 +112,16 @@ const data = computed(() => {
 function handleAddPrice() {
   emit("addPrice", data.value);
 }
+function navigateToDetail() {
+  uni.navigateTo({
+    url: `/pages-sub/requirement_detail/index?id=${data.value?.id}`,
+  });
+}
 </script>
 
 <template>
   <view
+    @click="navigateToDetail"
     class="relative rounded-8px bg-white px-18px py-24px"
     style="box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.25)"
   >
@@ -154,13 +160,15 @@ function handleAddPrice() {
           </view>
         </view>
       </view>
-      <sar-button
-        :disabled="status >= OrderStatus.Accepted"
-        root-class="!h-32px"
-        @click="handleAddPrice"
-      >
-        马上加价
-      </sar-button>
+      <view @click.stop>
+        <sar-button
+          :disabled="status >= OrderStatus.Accepted"
+          root-class="!h-32px"
+          @click="handleAddPrice"
+        >
+          马上加价
+        </sar-button>
+      </view>
     </view>
     <view
       v-if="!(status === OrderStatus.WasCanceled)"

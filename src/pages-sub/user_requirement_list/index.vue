@@ -5,6 +5,7 @@
     // 'custom' 表示开启自定义导航栏，默认 'default'
     "navigationStyle": "custom",
     "navigationBarTitleText": "首页",
+    "enablePullDownRefresh": true,
   },
 }
 </route>
@@ -41,7 +42,7 @@ const requirementStatusList = [
   },
 ];
 const screenHeight = uni.getWindowInfo().windowHeight;
-const currentSpecs = ref([]);
+const pickedRequirement = ref();
 const { mutate: queryList, data: requirementList } = useMutation(
   queryRequirementList,
   {
@@ -67,8 +68,8 @@ function redirectToPublish() {
   });
 }
 
-function fetchData() {
-  queryList({
+async function fetchData() {
+  await queryList({
     curPage: 1,
     number: 10,
     userId: 1,
@@ -93,13 +94,12 @@ function changStatus(value: number | null) {
 
 function handleAddPrice(data: any) {
   specsEditDialogShow.value = true;
-  currentSpecs.value = data.specs;
-  console.log(data);
+  pickedRequirement.value = data;
 }
 
-function handleAddPriceFinished() {
+function handleAddPriceFinished(isSuccess: boolean) {
   specsEditDialogShow.value = false;
-  console.log("加价完成");
+  isSuccess && fetchData();
 }
 
 onPageScroll((e) => {
@@ -109,7 +109,12 @@ onShow(() => {
   fetchData();
   fetchNoticeList();
 });
-const specsEditDialogShow = ref(true);
+onPullDownRefresh(async () => {
+  await fetchData();
+  await fetchNoticeList();
+  uni.stopPullDownRefresh();
+});
+const specsEditDialogShow = ref(false);
 </script>
 
 <template>
@@ -118,8 +123,9 @@ const specsEditDialogShow = ref(true);
     title="发布需求"
   />
   <specs-edit-dialog
+    :id="pickedRequirement?.id"
     :show="specsEditDialogShow"
-    :specs-list="currentSpecs"
+    :specs-list="pickedRequirement?.specs"
     @close="handleAddPriceFinished"
   />
   <view

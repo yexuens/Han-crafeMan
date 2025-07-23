@@ -1,8 +1,5 @@
 <script lang="ts" setup>
 const props = defineProps(["noticeList"]);
-watchEffect(() => {
-  console.log(props.noticeList);
-});
 </script>
 
 <template>

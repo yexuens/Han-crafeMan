@@ -111,7 +111,7 @@
           }
         },
         {
-          "path": "requirment_detail/index",
+          "path": "requirement_detail/index",
           "type": "page",
           "layout": "default",
           "style": {
@@ -125,7 +125,8 @@
           "layout": "default",
           "style": {
             "navigationStyle": "custom",
-            "navigationBarTitleText": "首页"
+            "navigationBarTitleText": "首页",
+            "enablePullDownRefresh": true
           }
         }
       ]

@@ -50,6 +50,7 @@ const requirementStatusByUser = computed<RequirementStatusByUser>(() => {
   // 其余情况，统一取消订单，联系客服
   return RequirementStatusByUser["取消接单"];
 });
+const id = ref();
 
 async function getDetail(id: number) {
   const { data } = await queryRequirementList({
@@ -142,20 +143,25 @@ function validateDetail() {
   });
 }
 
+onLoad((opt) => {
+  if (opt?.id) {
+    id.value = opt.id;
+  }
+});
 onShow(async () => {
-  await getDetail(4);
+  await getDetail(id.value);
   validateDetail();
 });
 onPullDownRefresh(async () => {
-  await getDetail(4);
+  await getDetail(id.value);
   uni.stopPullDownRefresh();
 });
 </script>
 
 <template>
   <nav-with-support
-    :with-service-icon="false"
     :transparent="true"
+    :with-service-icon="false"
     title="工单详情"
   />
   <view
@@ -206,20 +212,20 @@ onPullDownRefresh(async () => {
         <view class="flex items-center px-5vw flex-col gap-y-16px">
           <view class="flex justify-between w-full text-14px">
             <view class="text-#060606 opacity-60 shrink-0 pr-48px"
-              >工单编号</view
-            >
+              >工单编号
+            </view>
             <view>{{ requirementDetail.orderNo }}</view>
           </view>
           <view class="flex justify-between w-full text-14px">
             <view class="text-#060606 opacity-60 shrink-0 pr-48px"
-              >施工面积</view
-            >
+              >施工面积
+            </view>
             <view>{{ requirementDetail.area }}㎡</view>
           </view>
           <view class="flex justify-between w-full text-14px">
             <view class="text-#060606 opacity-60 shrink-0 pr-48px"
-              >铺贴规格</view
-            >
+              >铺贴规格
+            </view>
             <view>
               <view
                 v-for="(spec, index) in requirementDetail.specs"
@@ -233,14 +239,14 @@ onPullDownRefresh(async () => {
           </view>
           <view class="flex justify-between w-full text-14px">
             <view class="text-#060606 opacity-60 shrink-0 pr-48px"
-              >客户名称</view
-            >
+              >客户名称
+            </view>
             <view>{{ requirementDetail.ownerName }}</view>
           </view>
           <view class="flex justify-between w-full text-14px">
             <view class="text-#060606 opacity-60 shrink-0 pr-48px"
-              >详细地址</view
-            >
+              >详细地址
+            </view>
             <view>{{ requirementDetail.address }}</view>
           </view>
           <view
