@@ -134,7 +134,12 @@ function navigateToDetail() {
     >
       {{ orderStatusTipsMap[status].text }}
     </view>
-    <view class="flex flex-col gap-y-12px text-12px text-#979797">
+    <view
+      class="font-bold pb-12px border-b-solid border-b-gray-300 border-b-0.5px text-16px"
+    >
+      {{ data.orderNo }}
+    </view>
+    <view class="flex flex-col mt-12px gap-y-12px text-12px text-#979797">
       <view>房屋地址 佛山市南海区季华东路万科金域..</view>
       <view>发布时间 {{ data.createTime }}</view>
       <view>发布详情 点击查看</view>

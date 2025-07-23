@@ -17,7 +17,6 @@ const httpInterceptor = {
   invoke(options: CustomRequestOptions) {
     // 接口请求支持通过 query 参数配置 queryString
     if (options.query) {
-      console.log("query");
       const queryStr = stringifyQuery(options.query);
       if (options.url.includes("?")) {
         options.url += `&${queryStr}`;

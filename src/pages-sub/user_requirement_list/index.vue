@@ -13,6 +13,7 @@
 <script lang="ts" setup>
 import { imgRes } from "@/constants";
 import {
+  addOrEditRequirement,
   queryRequirementList,
   queryRequirementNotice,
 } from "@/service/requirement";
@@ -26,23 +27,20 @@ const requirementStatusList = [
   },
   {
     label: "待接单",
-    value: 1,
+    value: 0,
   },
   {
     label: "已接单",
-    value: 2,
-  },
-  {
-    label: "已完成",
-    value: 3,
+    value: 1,
   },
   {
     label: "已取消",
-    value: 4,
+    value: 3,
   },
 ];
 const screenHeight = uni.getWindowInfo().windowHeight;
 const pickedRequirement = ref();
+const specsEditDialogShow = ref(false);
 const { mutate: queryList, data: requirementList } = useMutation(
   queryRequirementList,
   {
@@ -92,14 +90,35 @@ function changStatus(value: number | null) {
   fetchData();
 }
 
-function handleAddPrice(data: any) {
+function openEditPriceDialog(data: any) {
   specsEditDialogShow.value = true;
   pickedRequirement.value = data;
 }
 
-function handleAddPriceFinished(isSuccess: boolean) {
+async function handleEditPriceFinished({ data, isSuccess }) {
   specsEditDialogShow.value = false;
-  isSuccess && fetchData();
+
+  if (isSuccess) {
+    try {
+      await addOrEditRequirement({
+        id: pickedRequirement.value.id,
+        specs: data,
+        userId: 1,
+      });
+      uni.showToast({
+        title: "修改成功",
+        icon: "none",
+      });
+      await fetchData();
+    } catch (e) {
+      uni.showToast({
+        title: "修改价格失败",
+        icon: "none",
+      });
+    } finally {
+      pickedRequirement.value = null;
+    }
+  }
 }
 
 onPageScroll((e) => {
@@ -114,7 +133,6 @@ onPullDownRefresh(async () => {
   await fetchNoticeList();
   uni.stopPullDownRefresh();
 });
-const specsEditDialogShow = ref(false);
 </script>
 
 <template>
@@ -126,7 +144,7 @@ const specsEditDialogShow = ref(false);
     :id="pickedRequirement?.id"
     :show="specsEditDialogShow"
     :specs-list="pickedRequirement?.specs"
-    @close="handleAddPriceFinished"
+    @finish="handleEditPriceFinished"
   />
   <view
     :class="[specsEditDialogShow ? 'no-scroll' : '']"
@@ -184,7 +202,10 @@ const specsEditDialogShow = ref(false);
           :key="index"
           class="pb-24px"
         >
-          <requirement-card :requirement="item" @add-price="handleAddPrice" />
+          <requirement-card
+            :requirement="item"
+            @add-price="openEditPriceDialog"
+          />
         </view>
       </view>
     </safe-area-layout>

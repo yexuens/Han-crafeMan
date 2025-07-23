@@ -20,6 +20,7 @@ import {
   RequirementStatusByUser,
 } from "@/enums/requirement";
 import { isNotEmpty, navigateBack } from "@/utils";
+import { data } from "autoprefixer";
 
 const { screenHeight } = uni.getWindowInfo();
 const requirementDetail = ref();
@@ -51,7 +52,7 @@ const requirementStatusByUser = computed<RequirementStatusByUser>(() => {
   return RequirementStatusByUser["取消接单"];
 });
 const id = ref();
-
+const specsEditDialogShow = ref(false);
 async function getDetail(id: number) {
   const { data } = await queryRequirementList({
     id,
@@ -79,8 +80,7 @@ async function handleCancel() {
         try {
           const { code } = await addOrEditRequirement({
             id: requirementDetail.value.id,
-            // jobState: RequirementStatus.WasCanceled.valueOf(),
-            jobState: 0,
+            jobState: RequirementStatus.WasCanceled.valueOf(),
             ...(userRole.value === 1 && { accesUserId: 1 }),
             ...(userRole.value === 0 && { userId: 1 }),
           });
@@ -101,7 +101,33 @@ async function handleCancel() {
   });
 }
 
-function handleEditSpecs() {}
+function openEditPriceDialog() {
+  specsEditDialogShow.value = true;
+}
+
+async function handleEditPriceFinished({ data, isSuccess }) {
+  specsEditDialogShow.value = false;
+
+  if (isSuccess) {
+    try {
+      await addOrEditRequirement({
+        id: id.value,
+        specs: data,
+        userId: 1,
+      });
+      uni.showToast({
+        title: "修改成功",
+        icon: "none",
+      });
+      await getDetail(id.value);
+    } catch (e) {
+      uni.showToast({
+        title: "修改价格失败",
+        icon: "none",
+      });
+    }
+  }
+}
 
 async function handleGrabOrder() {
   if (userRole.value === 1) {
@@ -122,7 +148,7 @@ async function handleGrabOrder() {
         icon: "none",
       });
     } finally {
-      getDetail(4);
+      getDetail(id.value);
     }
   }
 }
@@ -164,11 +190,18 @@ onPullDownRefresh(async () => {
     :with-service-icon="false"
     title="工单详情"
   />
+
   <view
     v-if="requirementDetail"
     :style="`height:${screenHeight}px`"
     class="bg-#f6f6f6"
   >
+    <specs-edit-dialog
+      :id="requirementDetail.id"
+      :show="specsEditDialogShow"
+      :specs-list="requirementDetail.specs"
+      @finish="handleEditPriceFinished"
+    />
     <safe-area-layout>
       <view class="flex flex-col gap-y-20px">
         <view class="flex flex-col gap-y-12px px-5vw">
@@ -251,7 +284,7 @@ onPullDownRefresh(async () => {
           </view>
           <view
             v-if="
-              jobState !== RequirementStatus.Published ||
+              jobState !== RequirementStatus.Published &&
               jobState !== RequirementStatus.WasCanceled
             "
             class="flex justify-between w-full text-14px"
@@ -317,7 +350,7 @@ onPullDownRefresh(async () => {
               requirementStatusByUser ===
               RequirementStatusByUser['用户已发单,工匠未接单']
             "
-            @click="handleEditSpecs"
+            @click="openEditPriceDialog"
             >马上提价
           </sar-button>
           <sar-button
