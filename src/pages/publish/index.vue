@@ -13,21 +13,31 @@
 import { imgRes } from "@/constants";
 import { useMutation } from "@/http/useMutation";
 import { addOrEditRequirement } from "@/service/requirement";
+import {
+  AddCustomSpecs,
+  IAddCustomSpecs,
+  IPublishRequirement,
+  PublishRequirement,
+  showZodError,
+} from "@/schemas";
 
-const customUnit = reactive({
+const customUnit = reactive<IAddCustomSpecs>({
   name: "",
-  price: "",
+  price: NaN,
 });
-const form = reactive({
+const form = reactive<IPublishRequirement>({
   address: "",
   area: "",
+  pickedSpecs: [],
 });
-const canPublish = computed(
-  () => pickUnitNameList.value.length > 0 && form.address && form.area,
-);
 const { mutate: publish } = useMutation(addOrEditRequirement);
-const pickUnitNameList = ref([]);
-const unitList = ref([
+const unitList = ref<
+  {
+    name: string;
+    refPrice: number;
+    userPrice: number | null;
+  }[]
+>([
   {
     name: "200x1200mm",
     refPrice: 24,
@@ -69,42 +79,41 @@ const unitList = ref([
     userPrice: null,
   },
 ]);
+const getSpecs = () =>
+  form.pickedSpecs.map((name) => {
+    const item = unitList.value.find((unit) => unit.name === name);
+    if (!item) {
+      throw new Error("规格不存在");
+    }
+    return {
+      unit: item.name,
+      price: item.userPrice ? item.userPrice : item.refPrice,
+    };
+  });
 
-function toggleUnit({ name }: { name: string }) {
-  const currentUnit = pickUnitNameList.value.find((unit) => unit === name);
-  if (currentUnit) {
-    const curIdx = pickUnitNameList.value.indexOf(currentUnit);
-    pickUnitNameList.value.splice(curIdx, 1);
-  } else {
-    pickUnitNameList.value.push(name);
+async function handlePublish() {
+  try {
+    PublishRequirement.parse(form);
+    const specs = JSON.stringify(getSpecs());
+    await publish({
+      ...form,
+      specs,
+      userId: 1,
+    });
+    resetForm();
+    await uni.showToast({
+      title: "发布成功！",
+      icon: "none",
+    });
+  } catch (error) {
+    showZodError(error);
   }
 }
 
-function resetCustomUnit() {
-  customUnit.name = "";
-  customUnit.price = "";
-}
-
-function addUnit() {
-  if (!customUnit.name) {
-    uni.showToast({
-      title: "请输入规格",
-      icon: "none",
-    });
-    return;
-  }
-  if (!customUnit.price) {
-    uni.showToast({
-      title: "请输入单价",
-      icon: "none",
-    });
-    return;
-  }
-  if (!Number(customUnit.price)) {
-    uni.showToast({
-      title: "单价必须是整数",
-      icon: "none",
-    });
+function addCustomUnit() {
+  const { success, error } = AddCustomSpecs.safeParse(customUnit);
+  if (!success) {
+    showZodError(error);
     return;
   }
   unitList.value.push({
@@ -119,39 +128,25 @@ function addUnit() {
   resetCustomUnit();
 }
 
-const getSpecs = () =>
-  pickUnitNameList.value.map((name) => {
-    const item = unitList.value.find((unit) => unit.name === name);
-    if (!item) {
-      throw new Error("规格不存在");
-    }
-    return {
-      unit: item.name,
-      price: item.userPrice ? item.userPrice : item.refPrice,
-    };
-  });
-
-async function handlePublish() {
-  try {
-    const specs = JSON.stringify(getSpecs());
-    await publish({
-      ...form,
-      specs,
-      userId: 1,
-    });
-    uni.showToast({
-      title: "发布成功！",
-      icon: "none",
-    });
-    form.address = "";
-    form.area = "";
-    pickUnitNameList.value = [];
-  } catch (error) {
-    uni.showToast({
-      title: error,
-      icon: "none",
-    });
+function toggleUnit({ name }: { name: string }) {
+  const currentUnit = form.pickedSpecs.find((unit) => unit === name);
+  if (currentUnit) {
+    const curIdx = form.pickedSpecs.indexOf(currentUnit);
+    form.pickedSpecs.splice(curIdx, 1);
+  } else {
+    form.pickedSpecs.push(name);
   }
+}
+
+function resetForm() {
+  form.address = "";
+  form.area = "";
+  form.pickedSpecs = [];
+}
+
+function resetCustomUnit() {
+  customUnit.name = "";
+  customUnit.price = NaN;
 }
 </script>
 
@@ -195,7 +190,7 @@ async function handlePublish() {
                 <text style="color: var(--sar-form-item-star-color)"> *</text>
               </view>
               <view class="text-13px text-primary-500">
-                已选择（{{ pickUnitNameList.length }} / {{ unitList.length }}）
+                已选择（{{ form.pickedSpecs.length }} / {{ unitList.length }}）
               </view>
             </view>
             <view
@@ -208,7 +203,7 @@ async function handlePublish() {
                 @click="toggleUnit(unit)"
               >
                 <view
-                  v-if="pickUnitNameList.includes(unit.name)"
+                  v-if="form.pickedSpecs.includes(unit.name)"
                   class="h-full w-full rounded-7px bg-primary-500 px-16px py-8px text-white tracking-wider"
                 >
                   <view
@@ -267,13 +262,11 @@ async function handlePublish() {
                 />
               </view>
             </view>
-            <view @click="addUnit">
+            <view @click="addCustomUnit">
               <custom-icon icon-name="addIcon" />
             </view>
           </view>
-          <sar-button :disabled="!canPublish" @click="handlePublish">
-            确认并发布需求
-          </sar-button>
+          <sar-button @click="handlePublish"> 确认并发布需求</sar-button>
         </sar-form>
       </view>
     </view>

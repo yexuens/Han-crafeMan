@@ -103,7 +103,7 @@
     "sard-uniapp": "^1.17.1",
     "vue": "^3.4.21",
     "z-paging": "2.8.7",
-    "zod": "^4.0.5"
+    "zod": "^3.25.0"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.15.0",
