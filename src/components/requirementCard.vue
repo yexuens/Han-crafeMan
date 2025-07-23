@@ -25,6 +25,8 @@ enum OrderStatus {
   GroupConnecting = 3,
 
   WasCanceled = 4,
+
+  Completed = 5,
 }
 
 const orderStatusTipsMap: Record<OrderStatus, TipInfo> = {
@@ -56,6 +58,11 @@ const orderStatusTipsMap: Record<OrderStatus, TipInfo> = {
   [OrderStatus.WasCanceled]: {
     bgColor: "#e1e1e1",
     text: "已取消",
+    textColor: "#ffffff",
+  },
+  [OrderStatus.Completed]: {
+    bgColor: "#e1e1e1",
+    text: "已完成",
     textColor: "#ffffff",
   },
 };

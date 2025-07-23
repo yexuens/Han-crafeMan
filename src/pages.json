@@ -111,6 +111,15 @@
           }
         },
         {
+          "path": "requirment_detail/index",
+          "type": "page",
+          "layout": "default",
+          "style": {
+            "navigationStyle": "custom",
+            "enablePullDownRefresh": true
+          }
+        },
+        {
           "path": "user_requirement_list/index",
           "type": "page",
           "layout": "default",

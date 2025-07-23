@@ -8,10 +8,11 @@ export type IRequirementSpecs = {
 export function queryRequirementList(data: {
   address?: string;
   userId?: number;
-  jobState: number | null;
+  jobState?: number | null;
   accesUserId?: number;
-  curPage: number;
-  number: number;
+  curPage?: number;
+  number?: number;
+  id?: number;
 }) {
   return http.get("/oe_TaskCrud_.csp", {
     ...data,
@@ -25,7 +26,7 @@ export function addOrEditRequirement(data: {
   address?: string;
   jobState?: number | null;
   qrCode?: string;
-  specs: string;
+  specs?: string;
   id?: number;
 }) {
   return http.get("/oe_TaskCrud_.csp", {

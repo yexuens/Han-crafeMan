@@ -91,7 +91,7 @@ function changStatus(value: number | null) {
   fetchData();
 }
 
-function handleAddPrice(data) {
+function handleAddPrice(data: any) {
   specsEditDialogShow.value = true;
   currentSpecs.value = data.specs;
   console.log(data);

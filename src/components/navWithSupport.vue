@@ -2,12 +2,14 @@
 const props = withDefaults(defineProps<IProps>(), {
   leftArrow: true,
   transparent: true,
+  withServiceIcon: true,
 });
 const menuBtnArea = uni.getMenuButtonBoundingClientRect();
 interface IProps {
   title: string;
   leftArrow?: boolean;
   transparent?: boolean;
+  withServiceIcon?: boolean;
 }
 const isLastPage = computed(() => getCurrentPages().length === 1);
 function handleLeftOperation() {
@@ -42,6 +44,7 @@ function handleLeftOperation() {
         {{ title }}
       </view>
       <view
+        v-if="withServiceIcon"
         :style="`position:absolute;left:calc( 100vw - ${(menuBtnArea.width + 48) * 2}rpx )`"
       >
         <custom-icon :height="25" :width="28" icon-name="serviceIcon" />
