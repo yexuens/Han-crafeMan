@@ -94,7 +94,10 @@ function navigateToAllRequirement() {
           </view>
           <!--        需求卡片 -->
           <view v-if="latestRequirement" class="mt-12px">
-            <requirement-card :requirement="latestRequirement" />
+            <requirement-card
+              :enable-shadow="true"
+              :requirement="latestRequirement"
+            />
           </view>
           <!--        常用功能 -->
           <view class="mt-40px">

@@ -272,9 +272,9 @@ onPullDownRefresh(async () => {
           </view>
           <view
             v-if="
-              jobState !== RequirementStatus.Published ||
-              (jobState === RequirementStatus.WasCanceled &&
-                requirementDetail.workmanName)
+              jobState !== RequirementStatus.Published &&
+              jobState === RequirementStatus.WasCanceled &&
+              requirementDetail.workmanName
             "
             class="flex justify-between w-full text-14px"
           >

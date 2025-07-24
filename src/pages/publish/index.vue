@@ -94,16 +94,24 @@ const getSpecs = () =>
 async function handlePublish() {
   try {
     PublishRequirement.parse(form);
-    const specs = JSON.stringify(getSpecs());
-    await publish({
-      ...form,
-      specs,
-      userId: 1,
-    });
-    resetForm();
-    await uni.showToast({
-      title: "发布成功！",
-      icon: "none",
+    uni.showModal({
+      title: "确认发布",
+      content: "发布前请确认信息是否填写正确？",
+      success: async (res) => {
+        if (res.confirm) {
+          const specs = JSON.stringify(getSpecs());
+          await publish({
+            ...form,
+            specs,
+            userId: 1,
+          });
+          resetForm();
+          await uni.showToast({
+            title: "发布成功！",
+            icon: "none",
+          });
+        }
+      },
     });
   } catch (error) {
     showZodError(error);

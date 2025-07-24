@@ -70,11 +70,6 @@ page {
 }
 .common_bg {
   flex-shrink: 0;
-  background: linear-gradient(
-    180deg,
-    #f8e4db 0%,
-    #faf2ee 13.07%,
-    #f6f6f6 100.12%
-  );
+  background: linear-gradient(180deg, #f8e4db 0%, #faf2ee 100px, #f6f6f6 400px);
 }
 </style>

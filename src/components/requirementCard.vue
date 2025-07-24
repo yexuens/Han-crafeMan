@@ -93,7 +93,14 @@ type TipInfo = {
   text: string;
   textColor: string;
 };
-const props = defineProps(["requirement"]);
+interface IProps {
+  requirement: any;
+  enableShadow?: boolean;
+}
+
+const props = withDefaults(defineProps<IProps>(), {
+  enableShadow: false,
+});
 const emit = defineEmits(["addPrice"]);
 const status = computed(() => data.value?.jobState);
 const data = computed(() => {
@@ -123,7 +130,9 @@ function navigateToDetail() {
   <view
     @click="navigateToDetail"
     class="relative rounded-8px bg-white px-18px py-24px"
-    style="box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.25)"
+    :style="
+      enableShadow ? 'box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.25)' : ''
+    "
   >
     <view
       :style="{

@@ -1,7 +1,7 @@
 // 枚举定义
 export type IResData<T = any> = {
   code: number;
-  data: T;
+  data: T | T[];
   msg: string;
   sumcount?: number;
   totalPage?: number;

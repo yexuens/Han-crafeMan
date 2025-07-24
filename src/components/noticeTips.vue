@@ -1,10 +1,18 @@
 <script lang="ts" setup>
-const props = defineProps(["noticeList"]);
+interface IProps {
+  noticeList: string[];
+  roundedClass?: string;
+  showNextText?: boolean;
+}
+const props = withDefaults(defineProps<IProps>(), {
+  showNextText: false,
+});
 </script>
 
 <template>
   <view
-    class="h-36px w-90vw rounded-16px bg-#FFE2D4 px-18px py-8px text-12px text-primary-500"
+    :class="[roundedClass]"
+    class="h-36px bg-#FFE2D4 px-18px py-8px text-12px text-#733617"
   >
     <swiper :interval="1500" autoplay circular class="h-full" vertical>
       <swiper-item
@@ -14,6 +22,11 @@ const props = defineProps(["noticeList"]);
       >
         <custom-icon :size="20" icon-name="noticeIcon" />
         <view class="truncate">{{ text }}</view>
+        <view
+          v-if="showNextText"
+          class="border-b-solid border-b-1px border-b-#733617 ml-auto"
+          >前往</view
+        >
       </swiper-item>
     </swiper>
   </view>

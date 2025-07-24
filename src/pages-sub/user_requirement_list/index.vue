@@ -5,7 +5,6 @@
     // 'custom' 表示开启自定义导航栏，默认 'default'
     "navigationStyle": "custom",
     "navigationBarTitleText": "首页",
-    "enablePullDownRefresh": true,
   },
 }
 </route>
@@ -19,6 +18,9 @@ import {
 } from "@/service/requirement";
 import { useMutation } from "@/http/useMutation";
 import { useNavTransparent } from "@/composables/useNavTransparent";
+import { isNotEmpty } from "@/utils";
+import { toast } from "@/utils/toast";
+import { useCustomRefresher } from "@/composables/useCustomRefresher";
 
 const requirementStatusList = [
   {
@@ -27,38 +29,46 @@ const requirementStatusList = [
   },
   {
     label: "待接单",
-    value: 0,
+    value: "0",
   },
   {
     label: "已接单",
-    value: 1,
+    value: "1,2,3",
   },
   {
     label: "已取消",
-    value: 3,
+    value: "4",
   },
 ];
 const screenHeight = uni.getWindowInfo().windowHeight;
 const pickedRequirement = ref();
 const specsEditDialogShow = ref(false);
-const { mutate: queryList, data: requirementList } = useMutation(
-  queryRequirementList,
-  {
-    select(res) {
-      publishRequirementCount.value = res?.sumcount || 0;
-      return (
-        res?.data?.map((item) => ({
-          ...item,
-          specs: item.specs?.startsWith("[") ? JSON.parse(item.specs) : [],
-        })) || []
-      );
-    },
-  },
-);
-const navTransparent = useNavTransparent();
+
 const currentStatus = ref(null);
 const publishRequirementCount = ref(0);
 const noticeList = ref([]);
+const pageParam = reactive({
+  curPage: 1,
+  number: 10,
+});
+const refresher = useCustomRefresher();
+const navTransparent = useNavTransparent();
+
+const {
+  mutate: queryList,
+  data: requirementList,
+  isLoading,
+} = useMutation(queryRequirementList, {
+  select({ data, sumcount }) {
+    publishRequirementCount.value = sumcount || 0;
+    return isNotEmpty(data)
+      ? data.map((item) => ({
+          ...item,
+          specs: item.specs?.startsWith("[") ? JSON.parse(item.specs) : [],
+        }))
+      : [];
+  },
+});
 
 function redirectToPublish() {
   uni.reLaunch({
@@ -66,13 +76,24 @@ function redirectToPublish() {
   });
 }
 
-async function fetchData() {
+async function fetchData({
+  withoutStatus = false,
+  refresh = false,
+}: {
+  refresh?: boolean;
+  withoutStatus?: boolean;
+} = {}) {
+  if (refresh) pageParam.curPage = 1;
+
   await queryList({
-    curPage: 1,
-    number: 10,
-    userId: 1,
-    jobState: currentStatus.value,
+    ...pageParam,
+    ...(withoutStatus
+      ? {}
+      : {
+          jobState: currentStatus.value,
+        }),
   });
+  pageParam.curPage += 1;
 }
 
 async function fetchNoticeList() {
@@ -80,14 +101,17 @@ async function fetchNoticeList() {
     type: 1,
     userId: 1,
   });
-  if (Array.isArray(data)) {
-    noticeList.value = data;
+  if (isNotEmpty(data)) {
+    noticeList.value = data as any[];
   }
 }
 
-function changStatus(value: number | null) {
+function changStatus(value: string | null) {
+  if (currentStatus.value === value) return;
   currentStatus.value = value;
-  fetchData();
+  fetchData({
+    refresh: true,
+  });
 }
 
 function openEditPriceDialog(data: any) {
@@ -105,33 +129,35 @@ async function handleEditPriceFinished({ data, isSuccess }) {
         specs: data,
         userId: 1,
       });
-      uni.showToast({
-        title: "修改成功",
-        icon: "none",
+      toast.info("修改成功");
+      await fetchData({
+        refresh: true,
       });
-      await fetchData();
     } catch (e) {
-      uni.showToast({
-        title: "修改价格失败",
-        icon: "none",
-      });
+      toast.info("修改失败");
     } finally {
       pickedRequirement.value = null;
     }
   }
 }
 
+async function handleRefresh() {
+  refresher.onRefresh(() =>
+    fetchData({
+      refresh: true,
+    }),
+  );
+}
+
 onPageScroll((e) => {
   navTransparent.onScroll(e);
 });
 onShow(() => {
-  fetchData();
+  fetchData({
+    withoutStatus: true,
+    refresh: true,
+  });
   fetchNoticeList();
-});
-onPullDownRefresh(async () => {
-  await fetchData();
-  await fetchNoticeList();
-  uni.stopPullDownRefresh();
 });
 </script>
 
@@ -148,7 +174,9 @@ onPullDownRefresh(async () => {
   />
   <view
     :class="[specsEditDialogShow ? 'no-scroll' : '']"
-    :style="`height: ${screenHeight}px`"
+    :style="{
+      minHeight: screenHeight + 'px',
+    }"
     class="common_bg"
   >
     <safe-area-layout>
@@ -185,29 +213,51 @@ onPullDownRefresh(async () => {
         />
       </view>
       <!--    需求列表 -->
-      <view class="relative mx-auto mt-28px w-90vw flex flex-col gap-y-18px">
-        <view class="flex items-center gap-x-22px text-14px">
+      <scroll-view
+        :refresher-triggered="refresher.isRefreshing.value"
+        refresher-enabled
+        vscroll-y
+        @refresherrefresh="handleRefresh"
+      >
+        <view
+          class="relative h-full mx-auto mt-28px w-90vw flex flex-col gap-y-18px"
+        >
+          <view class="flex items-center gap-x-22px text-14px">
+            <view
+              v-for="(item, index) in requirementStatusList"
+              :key="index"
+              :class="[currentStatus === item.value ? '' : 'text-#979797']"
+              @click="changStatus(item.value)"
+            >
+              {{ item.label }}
+            </view>
+          </view>
+          <notice-tips
+            v-if="isNotEmpty(noticeList)"
+            :notice-list="noticeList"
+            rounded-class="rounded-16px"
+          />
           <view
-            v-for="(item, index) in requirementStatusList"
+            v-for="(item, index) in requirementList"
             :key="index"
-            :class="[currentStatus === item.value ? '' : 'text-#979797']"
-            @click="changStatus(item.value)"
+            class="pb-24px"
           >
-            {{ item.label }}
+            <requirement-card
+              :requirement="item"
+              @add-price="openEditPriceDialog"
+            />
+          </view>
+          <view
+            v-if="isLoading"
+            class="flex !my-1/3 items-center justify-center"
+          >
+            <sar-loading size="48rpx" />
+          </view>
+          <view v-else-if="!isNotEmpty(requirementList)" class="!my-1/3">
+            <sar-empty description="暂无工单" />
           </view>
         </view>
-        <notice-tips :notice-list="noticeList" />
-        <view
-          v-for="(item, index) in requirementList"
-          :key="index"
-          class="pb-24px"
-        >
-          <requirement-card
-            :requirement="item"
-            @add-price="openEditPriceDialog"
-          />
-        </view>
-      </view>
+      </scroll-view>
     </safe-area-layout>
   </view>
 </template>

@@ -8,13 +8,14 @@ export type IRequirementSpecs = {
 export function queryRequirementList(data: {
   address?: string;
   userId?: number;
-  jobState?: number | null;
+  jobState?: number | null | string;
   accesUserId?: number;
   curPage?: number;
   number?: number;
+  keyword?: string;
   id?: number;
 }) {
-  return http.get("/oe_TaskCrud_.csp", {
+  return http.get<any[]>("/oe_TaskCrud_.csp", {
     ...data,
     flag: "query",
   });

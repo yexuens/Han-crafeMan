@@ -1,35 +1,35 @@
-import type { CustomRequestOptions } from '@/http/interceptor'
-import { env } from '@/constants'
+import type { CustomRequestOptions } from "@/http/interceptor";
+import { env } from "@/constants";
+import { IResData } from "@/typings";
 
-export function http<T>(options: CustomRequestOptions) {
+export function http<T = any>(options: CustomRequestOptions) {
   if (options.query) {
-    options.query['dbName'] = env.dbName
-  }
-  else if (options.data) {
-    options.data['dbName'] = env.dbName
+    options.query["dbName"] = env.dbName;
+  } else if (options.data) {
+    options.data["dbName"] = env.dbName;
   }
   // 1. 返回 Promise 对象
   return new Promise<IResData<T>>((resolve, reject) => {
     uni.request({
       ...options,
-      dataType: 'json',
+      dataType: "json",
       // #ifndef MP-WEIXIN
-      responseType: 'json',
+      responseType: "json",
       // #endif
       // 响应成功
       success(res) {
-        resolve(res.data as IResData<T>)
+        resolve(res.data as IResData<T>);
       },
       // 响应失败
       fail(err) {
         uni.showToast({
-          icon: 'none',
-          title: '网络错误，换个网络试试',
-        })
-        reject(err)
+          icon: "none",
+          title: "网络错误，换个网络试试",
+        });
+        reject(err);
       },
-    })
-  })
+    });
+  });
 }
 
 /**
@@ -39,14 +39,19 @@ export function http<T>(options: CustomRequestOptions) {
  * @param header 请求头，默认为json格式
  * @returns
  */
-export function httpGet<T>(url: string, query?: Record<string, any>, header?: Record<string, any>, options?: Partial<CustomRequestOptions>) {
+export function httpGet<T>(
+  url: string,
+  query?: Record<string, any>,
+  header?: Record<string, any>,
+  options?: Partial<CustomRequestOptions>,
+) {
   return http<T>({
     url,
     query,
-    method: 'GET',
+    method: "GET",
     header,
     ...options,
-  })
+  });
 }
 
 /**
@@ -57,50 +62,67 @@ export function httpGet<T>(url: string, query?: Record<string, any>, header?: Re
  * @param header 请求头，默认为json格式
  * @returns
  */
-export function httpPost<T>(url: string, data?: Record<string, any>, query?: Record<string, any>, header?: Record<string, any>, options?: Partial<CustomRequestOptions>) {
+export function httpPost<T>(
+  url: string,
+  data?: Record<string, any>,
+  query?: Record<string, any>,
+  header?: Record<string, any>,
+  options?: Partial<CustomRequestOptions>,
+) {
   return http<T>({
     url,
     query,
     data,
-    method: 'POST',
+    method: "POST",
     header,
     ...options,
-  })
+  });
 }
 /**
  * PUT 请求
  */
-export function httpPut<T>(url: string, data?: Record<string, any>, query?: Record<string, any>, header?: Record<string, any>, options?: Partial<CustomRequestOptions>) {
+export function httpPut<T>(
+  url: string,
+  data?: Record<string, any>,
+  query?: Record<string, any>,
+  header?: Record<string, any>,
+  options?: Partial<CustomRequestOptions>,
+) {
   return http<T>({
     url,
     data,
     query,
-    method: 'PUT',
+    method: "PUT",
     header,
     ...options,
-  })
+  });
 }
 
 /**
  * DELETE 请求（无请求体，仅 query）
  */
-export function httpDelete<T>(url: string, query?: Record<string, any>, header?: Record<string, any>, options?: Partial<CustomRequestOptions>) {
+export function httpDelete<T>(
+  url: string,
+  query?: Record<string, any>,
+  header?: Record<string, any>,
+  options?: Partial<CustomRequestOptions>,
+) {
   return http<T>({
     url,
     query,
-    method: 'DELETE',
+    method: "DELETE",
     header,
     ...options,
-  })
+  });
 }
 
-http.get = httpGet
-http.post = httpPost
-http.put = httpPut
-http.delete = httpDelete
+http.get = httpGet;
+http.post = httpPost;
+http.put = httpPut;
+http.delete = httpDelete;
 
 // 支持与 alovaJS 类似的API调用
-http.Get = httpGet
-http.Post = httpPost
-http.Put = httpPut
-http.Delete = httpDelete
+http.Get = httpGet;
+http.Post = httpPost;
+http.Put = httpPut;
+http.Delete = httpDelete;

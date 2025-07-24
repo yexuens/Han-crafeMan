@@ -93,6 +93,15 @@
           }
         },
         {
+          "path": "craft_man_order_center/index",
+          "type": "page",
+          "layout": "default",
+          "style": {
+            "navigationStyle": "custom",
+            "navigationBarTitleText": "首页"
+          }
+        },
+        {
           "path": "craft_man_reg/index",
           "type": "page",
           "layout": "customBar",
@@ -125,8 +134,7 @@
           "layout": "default",
           "style": {
             "navigationStyle": "custom",
-            "navigationBarTitleText": "首页",
-            "enablePullDownRefresh": true
+            "navigationBarTitleText": "首页"
           }
         }
       ]

@@ -1,5 +1,5 @@
 {
-  "name": "unibest",
+  "name": "汉工华匠",
   "appid": "__UNI__D1E5001",
   "description": "",
   "versionName": "1.0.0",
@@ -83,7 +83,7 @@
   },
   "quickapp": {},
   "mp-weixin": {
-    "appid": "wx42188c4f42df19df",
+    "appid": "wx32bd0d6007635328",
     "setting": {
       "urlCheck": false,
       "es6": true,
