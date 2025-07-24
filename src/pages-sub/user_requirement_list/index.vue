@@ -151,7 +151,9 @@ async function handleRefresh() {
 
 onPageScroll((e) => {
   navTransparent.onScroll(e);
+  e.scrollTop === 0 ? refresher.enable() : refresher.disable();
 });
+
 onShow(() => {
   fetchData({
     withoutStatus: true,
@@ -215,48 +217,51 @@ onShow(() => {
       <!--    需求列表 -->
       <scroll-view
         :refresher-triggered="refresher.isRefreshing.value"
-        refresher-enabled
-        vscroll-y
+        :refresher-enabled="refresher.enableRefresh.value"
+        scroll-y
+        :throttle="false"
         @refresherrefresh="handleRefresh"
       >
-        <view
-          class="relative h-full mx-auto mt-28px w-90vw flex flex-col gap-y-18px"
-        >
-          <view class="flex items-center gap-x-22px text-14px">
+        <scroll-view>
+          <view
+            class="relative h-full mx-auto mt-28px w-90vw flex flex-col gap-y-18px"
+          >
+            <view class="flex items-center gap-x-22px text-14px">
+              <view
+                v-for="(item, index) in requirementStatusList"
+                :key="index"
+                :class="[currentStatus === item.value ? '' : 'text-#979797']"
+                @click="changStatus(item.value)"
+              >
+                {{ item.label }}
+              </view>
+            </view>
+            <notice-tips
+              v-if="isNotEmpty(noticeList)"
+              :notice-list="noticeList"
+              rounded-class="rounded-16px"
+            />
             <view
-              v-for="(item, index) in requirementStatusList"
+              v-for="(item, index) in requirementList"
               :key="index"
-              :class="[currentStatus === item.value ? '' : 'text-#979797']"
-              @click="changStatus(item.value)"
+              class="pb-24px"
             >
-              {{ item.label }}
+              <requirement-card
+                :requirement="item"
+                @add-price="openEditPriceDialog"
+              />
+            </view>
+            <view
+              v-if="isLoading"
+              class="flex !my-1/3 items-center justify-center"
+            >
+              <sar-loading size="48rpx" />
+            </view>
+            <view v-else-if="!isNotEmpty(requirementList)" class="!my-1/3">
+              <sar-empty description="暂无工单" />
             </view>
           </view>
-          <notice-tips
-            v-if="isNotEmpty(noticeList)"
-            :notice-list="noticeList"
-            rounded-class="rounded-16px"
-          />
-          <view
-            v-for="(item, index) in requirementList"
-            :key="index"
-            class="pb-24px"
-          >
-            <requirement-card
-              :requirement="item"
-              @add-price="openEditPriceDialog"
-            />
-          </view>
-          <view
-            v-if="isLoading"
-            class="flex !my-1/3 items-center justify-center"
-          >
-            <sar-loading size="48rpx" />
-          </view>
-          <view v-else-if="!isNotEmpty(requirementList)" class="!my-1/3">
-            <sar-empty description="暂无工单" />
-          </view>
-        </view>
+        </scroll-view>
       </scroll-view>
     </safe-area-layout>
   </view>

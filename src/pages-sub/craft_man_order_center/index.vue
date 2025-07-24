@@ -142,6 +142,7 @@ function changeStatus(status: string) {
 
 onPageScroll((e) => {
   navTransparent.onScroll(e);
+  e.scrollTop === 0 ? refresher.enable() : refresher.disable();
 });
 onLoad((opt) => {});
 onShow(() => {
@@ -212,8 +213,9 @@ onShow(() => {
         <scroll-view
           @refresherrefresh="handleRefresh"
           :refresher-triggered="refresher.isRefreshing.value"
-          refresher-enabled
-          vscroll-y
+          :refresher-enabled="refresher.enableRefresh.value"
+          scroll-y
+          :throttle="false"
         >
           <view class="mt-28px flex flex-col gap-y-16px pb-24px">
             <requirement-card-for-craft-man

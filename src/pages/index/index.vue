@@ -35,17 +35,18 @@ const bannerList = [
   "https://cdn.juesedao.cn/mdy/6d62ae3a3fec4e39933010403d456b54",
   "https://cdn.juesedao.cn/mdy/2a81d7f356fa44d981e77ecc77220a67",
 ];
+const { screenHeight } = uni.getWindowInfo();
 function navigateToCraftRegistration() {
   uni.navigateTo({
-    url: "/craft",
+    url: "/pages-sub/craft_man_reg/index",
   });
 }
 </script>
 
 <template>
   <view
-    class="min-h-screen bg"
-    :style="`padding-top: ${menuButtonArea.top}px;`"
+    class="bg"
+    :style="`padding-top: ${menuButtonArea.top}px;height: ${screenHeight}px`"
   >
     <view class="px-12px">
       <!--    TopBar -->
@@ -116,7 +117,7 @@ function navigateToCraftRegistration() {
         </view>
       </view>
       <!--      Card -->
-      <view class="mt-35px flex items-center justify-between pb-150px">
+      <view class="mt-35px flex items-center justify-between">
         <image
           v-for="url in bannerList"
           :key="url"

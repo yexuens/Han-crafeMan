@@ -5,6 +5,7 @@
     // 'custom' 表示开启自定义导航栏，默认 'default'
     "navigationStyle": "custom",
     "navigationBarTitleText": "首页",
+    "enablePullDownRefresh": true,
   },
 }
 </route>
@@ -12,8 +13,9 @@
 <script lang="ts" setup>
 import NavWithSupport from "@/components/navWithSupport.vue";
 import { queryRequirementList } from "@/service/requirement";
+import { useNavTransparent } from "@/composables/useNavTransparent";
 
-const menuBtnArea = uni.getMenuButtonBoundingClientRect();
+const navTransparent = useNavTransparent();
 const latestRequirement = ref();
 const screenHeight = uni.getSystemInfoSync().windowHeight;
 const featureList = [
@@ -33,27 +35,39 @@ const featureList = [
     handleFunc() {},
   },
 ];
-onShow(async () => {
+function navigateToAllRequirement() {
+  uni.navigateTo({
+    url: "/pages-sub/user_requirement_list/index",
+  });
+}
+async function fetchData() {
   const { data } = await queryRequirementList({
     userId: 1,
     curPage: 1,
     jobState: null,
     number: 1,
   });
-  console.log(data);
   latestRequirement.value = data[0];
+}
+onShow(async () => {
+  fetchData();
 });
 
-function navigateToAllRequirement() {
-  uni.navigateTo({
-    url: "/pages-sub/user_requirement_list/index",
-  });
-}
+onPageScroll((e) => {
+  navTransparent.onScroll(e);
+});
+onPullDownRefresh(async () => {
+  await fetchData();
+  uni.stopPullDownRefresh();
+});
 </script>
 
 <template>
   <view :style="`height: ${screenHeight}px`" class="mine_bg flex flex-col">
-    <nav-with-support title="工作台" />
+    <nav-with-support
+      :transparent="navTransparent.transparent.value"
+      title="工作台"
+    />
     <safe-area-layout>
       <view class="mx-auto w-90vw">
         <view class="mt-20px flex items-center gap-x-12px">

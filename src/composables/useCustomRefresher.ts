@@ -1,5 +1,7 @@
 export const useCustomRefresher = () => {
   const isRefreshing = ref(false);
+  const enableRefresh = ref(true);
+
   function stopRefresh() {
     isRefreshing.value = false;
   }
@@ -12,10 +14,20 @@ export const useCustomRefresher = () => {
       stopRefresh();
     });
   }
+  function enable() {
+    enableRefresh.value = true;
+  }
+  function disable() {
+    enableRefresh.value = false;
+  }
+
   return {
     isRefreshing,
     startRefresh,
     stopRefresh,
+    enableRefresh,
     onRefresh,
+    enable,
+    disable,
   };
 };
