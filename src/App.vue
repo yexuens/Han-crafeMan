@@ -1,23 +1,23 @@
 <script lang="ts" setup>
-import { onHide, onLaunch, onShow } from '@dcloudio/uni-app'
-import { usePageAuth } from '@/hooks/usePageAuth'
-import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only'
+import { onHide, onLaunch, onShow } from "@dcloudio/uni-app";
+import { usePageAuth } from "@/hooks/usePageAuth";
+import "abortcontroller-polyfill/dist/abortcontroller-polyfill-only";
 
-usePageAuth()
+usePageAuth();
 
 onLaunch(() => {
-  console.log('App Launch')
-})
+  console.log("App Launch");
+});
 onShow(() => {
-  console.log('App Show')
-})
+  console.log("App Show");
+});
 onHide(() => {
-  console.log('App Hide')
-})
+  console.log("App Hide");
+});
 </script>
 
 <style lang="scss">
-@import 'sard-uniapp/index.scss';
+@import "sard-uniapp/index.scss";
 
 page,
 .sar-portal {
@@ -70,6 +70,11 @@ page {
 }
 .common_bg {
   flex-shrink: 0;
-  background: linear-gradient(180deg, #f8e4db 0%, #faf2ee 13.07%, #f6f6f6 100.12%);
+  background: linear-gradient(
+    180deg,
+    #f8e4db 0%,
+    #faf2ee 13.07%,
+    #f6f6f6 100.12%
+  );
 }
 </style>

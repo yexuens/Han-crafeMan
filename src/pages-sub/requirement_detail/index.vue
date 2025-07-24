@@ -20,7 +20,7 @@ import {
   RequirementStatusByUser,
 } from "@/enums/requirement";
 import { isNotEmpty, navigateBack } from "@/utils";
-import { data } from "autoprefixer";
+import { toast } from "@/utils/toast";
 
 const { screenHeight } = uni.getWindowInfo();
 const requirementDetail = ref();
@@ -53,6 +53,8 @@ const requirementStatusByUser = computed<RequirementStatusByUser>(() => {
 });
 const id = ref();
 const specsEditDialogShow = ref(false);
+const userId = ref(1);
+
 async function getDetail(id: number) {
   const { data } = await queryRequirementList({
     id,
@@ -64,10 +66,7 @@ async function getDetail(id: number) {
       specs: rawData.specs?.startsWith("[") ? JSON.parse(rawData.specs) : [],
     };
   } else {
-    uni.showToast({
-      title: "获取工单详情失败",
-      icon: "none",
-    });
+    toast.info("获取工单详情失败");
   }
 }
 
@@ -81,82 +80,68 @@ async function handleCancel() {
           const { code } = await addOrEditRequirement({
             id: requirementDetail.value.id,
             jobState: RequirementStatus.WasCanceled.valueOf(),
-            ...(userRole.value === 1 && { accesUserId: 1 }),
-            ...(userRole.value === 0 && { userId: 1 }),
+            ...(userRole.value === 1 && { accesUserId: userId.value }),
+            ...(userRole.value === 0 && { userId: userId.value }),
           });
-          if (!code || code != 1) throw new Error("取消工单失败");
-          uni.showToast({
-            title: "取消成功",
-            icon: "none",
-          });
+          if (code !== 1) throw new Error("取消工单失败");
+          toast.info("取消成功");
         } catch (error) {
-          uni.showToast({
-            title: "取消工单失败",
-            icon: "none",
-          });
-          throw error;
+          toast.info(error.message || "取消工单失败");
+        } finally {
+          getDetail(id.value);
         }
       }
     },
   });
 }
 
-function openEditPriceDialog() {
-  specsEditDialogShow.value = true;
-}
-
 async function handleEditPriceFinished({ data, isSuccess }) {
   specsEditDialogShow.value = false;
-
-  if (isSuccess) {
-    try {
-      await addOrEditRequirement({
-        id: id.value,
-        specs: data,
-        userId: 1,
-      });
-      uni.showToast({
-        title: "修改成功",
-        icon: "none",
-      });
-      await getDetail(id.value);
-    } catch (e) {
-      uni.showToast({
-        title: "修改价格失败",
-        icon: "none",
-      });
-    }
+  if (!isSuccess) return;
+  try {
+    await addOrEditRequirement({
+      id: id.value,
+      specs: data,
+      userId: userId.value || 1,
+    });
+    toast.info("修改成功");
+  } catch (e) {
+    toast.info("修改价格失败");
+  } finally {
+    getDetail(id.value);
   }
 }
 
 async function handleGrabOrder() {
-  if (userRole.value === 1) {
-    try {
-      const { code } = await addOrEditRequirement({
-        id: requirementDetail.value.id,
-        jobState: 1,
-        accesUserId: 1,
-      });
-      if (!code || code != 1) throw new Error("抢单失败，请稍后再试");
-      uni.showToast({
-        title: "抢单成功",
-        icon: "none",
-      });
-    } catch (error) {
-      uni.showToast({
-        title: "抢单失败，请稍后再试",
-        icon: "none",
-      });
-    } finally {
-      getDetail(id.value);
-    }
+  if (userRole.value !== 1) return;
+  try {
+    const { code } = await addOrEditRequirement({
+      id: requirementDetail.value.id,
+      jobState: 1,
+      accesUserId: userId.value || 1,
+    });
+    if (code !== 1) throw new Error("抢单失败，请稍后再试");
+    toast.info("抢单成功");
+  } catch (e) {
+    toast.info(e.message || "抢单失败，请稍后再试");
+  } finally {
+    getDetail(id.value);
   }
+}
+
+function openEditPriceDialog() {
+  specsEditDialogShow.value = true;
 }
 
 function validateDetail() {
   if (requirementDetail.value) {
-    if (userRole.value === 0 && requirementDetail.value.userId === 1) return;
-    if (userRole.value === 1 && requirementDetail.value.accesUserId === 1)
+    if (userRole.value === 0 && requirementDetail.value.userId === userId.value)
+      return;
+    if (
+      requirementDetail.value.jobState === RequirementStatus.Published ||
+      (userRole.value === 1 &&
+        requirementDetail.value.accesUserId === userId.value)
+    )
       return;
   }
   uni.showModal({
@@ -232,7 +217,10 @@ onPullDownRefresh(async () => {
           }"
           class="w-full rounded-t-16px h-40px flex items-center px-5vw gap-x-6px"
         >
-          <custom-icon :icon-name="jobStateNoticeInfo[jobState].icon" />
+          <custom-icon
+            v-if="jobStateNoticeInfo[jobState].icon"
+            :icon-name="jobStateNoticeInfo[jobState].icon"
+          />
           <text class="text-12px font-500"
             >{{
               userRole === 0
@@ -284,8 +272,9 @@ onPullDownRefresh(async () => {
           </view>
           <view
             v-if="
-              jobState !== RequirementStatus.Published &&
-              jobState !== RequirementStatus.WasCanceled
+              jobState !== RequirementStatus.Published ||
+              (jobState === RequirementStatus.WasCanceled &&
+                requirementDetail.workmanName)
             "
             class="flex justify-between w-full text-14px"
           >
@@ -319,7 +308,8 @@ onPullDownRefresh(async () => {
           class="max-w-35% shrink-0 gap-x-8px h-full flex items-center justify-between"
         >
           <button
-            class="flex items-center flex-col m-0 p-0"
+            hover-class="none"
+            class="flex items-center flex-col m-0 p-0 after:border-none"
             open-type="contact"
           >
             <custom-icon icon-name="lianXiKeFuIcon" />
