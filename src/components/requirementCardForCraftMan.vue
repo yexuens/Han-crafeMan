@@ -86,15 +86,7 @@ const bottomBtnGroupMap = {
     {
       label: "取消接单",
       onClick: () => {
-        uni.showModal({
-          title: "提示",
-          content: "确认取消接单吗？",
-          success: (res) => {
-            if (res.confirm) {
-              emits("cancel");
-            }
-          },
-        });
+        emits("cancel", data.value?.id);
       },
       rootStyle: {
         color: "#10AD80",
@@ -115,15 +107,7 @@ const bottomBtnGroupMap = {
     {
       label: "取消接单",
       onClick: () => {
-        uni.showModal({
-          title: "提示",
-          content: "确认取消接单吗？",
-          success: (res) => {
-            if (res.confirm) {
-              emits("cancel");
-            }
-          },
-        });
+        emits("cancel", data.value?.id);
       },
       rootStyle: {
         color: "white",
@@ -212,6 +196,7 @@ const hasQrCode = computed(
 );
 
 function navigateToDetail() {
+  console.log("detail");
   uni.navigateTo({
     url: `/pages-sub/requirement_detail/index?id=${data.value?.id}`,
   });
@@ -286,7 +271,7 @@ function navigateToDetail() {
     </view>
     <view class="flex px-16px flex-row-reverse mt-28px gap-x-12px">
       <button
-        @click="item?.onClick ? item.onClick : () => {}"
+        @click="item?.onClick"
         :open-type="item?.openType"
         v-for="item in bottomBtnGroupByStatus"
         :key="item.label"

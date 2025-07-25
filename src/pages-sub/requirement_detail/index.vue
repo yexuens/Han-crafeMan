@@ -1,6 +1,7 @@
 <route lang="jsonc">
 {
   "layout": "default",
+  "needLogin": true,
   "style": {
     // 'custom' 表示开启自定义导航栏，默认 'default'
     "navigationStyle": "custom",
@@ -21,12 +22,14 @@ import {
 } from "@/enums/requirement";
 import { isNotEmpty, navigateBack } from "@/utils";
 import { toast } from "@/utils/toast";
+import { useUserStore } from "@/store";
 
 const { screenHeight } = uni.getWindowInfo();
 const requirementDetail = ref();
-//  1. 工匠 0. 用户
-const userRole = computed(() => 0);
-const jobState = computed(() => requirementDetail.value?.jobState);
+const id = ref();
+const specsEditDialogShow = ref(false);
+const user = useUserStore();
+
 const requirementStatusByUser = computed<RequirementStatusByUser>(() => {
   if (requirementDetail.value) {
     if (
@@ -51,9 +54,11 @@ const requirementStatusByUser = computed<RequirementStatusByUser>(() => {
   // 其余情况，统一取消订单，联系客服
   return RequirementStatusByUser["取消接单"];
 });
-const id = ref();
-const specsEditDialogShow = ref(false);
-const userId = ref(1);
+
+//  1. 工匠 0. 用户
+const userRole = computed(() => user.userInfo.role);
+const jobState = computed(() => requirementDetail.value?.jobState);
+const userId = computed(() => user.userInfo.id);
 
 async function getDetail(id: number) {
   const { data } = await queryRequirementList({
@@ -308,8 +313,8 @@ onPullDownRefresh(async () => {
           class="max-w-35% shrink-0 gap-x-8px h-full flex items-center justify-between"
         >
           <button
-            hover-class="none"
             class="flex items-center flex-col m-0 p-0 after:border-none"
+            hover-class="none"
             open-type="contact"
           >
             <custom-icon icon-name="lianXiKeFuIcon" />

@@ -1,4 +1,5 @@
 import { env } from "@/constants";
+import { http } from "@/http/http";
 
 export function uploadImage(tempFilePath: string) {
   uni.showLoading({
@@ -7,7 +8,7 @@ export function uploadImage(tempFilePath: string) {
   return new Promise((resolve, reject) => {
     uni.uploadFile({
       filePath: tempFilePath,
-      name: "file",
+      unit: "file",
       url: env.baseUrl + "/uploadCloud",
       success: (res) => {
         if (res?.data) resolve(JSON.parse(res?.data as any)?.yunUrl);
@@ -19,5 +20,10 @@ export function uploadImage(tempFilePath: string) {
         uni.hideLoading();
       },
     });
+  });
+}
+export function queryCraftManCount() {
+  return http.get("/oe_QueryTotalNum_.csp", {
+    flag: "workman",
   });
 }

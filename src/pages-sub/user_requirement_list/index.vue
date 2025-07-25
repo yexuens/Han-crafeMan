@@ -1,6 +1,7 @@
 <route lang="jsonc">
 {
   "layout": "default",
+  "needLogin": true,
   "style": {
     // 'custom' 表示开启自定义导航栏，默认 'default'
     "navigationStyle": "custom",
@@ -21,6 +22,8 @@ import { useNavTransparent } from "@/composables/useNavTransparent";
 import { isNotEmpty } from "@/utils";
 import { toast } from "@/utils/toast";
 import { useCustomRefresher } from "@/composables/useCustomRefresher";
+import { useUserStore } from "@/store";
+import { useSafeAreaStyle } from "@/composables/useSafeAreaStyle";
 
 const requirementStatusList = [
   {
@@ -40,7 +43,7 @@ const requirementStatusList = [
     value: "4",
   },
 ];
-const screenHeight = uni.getWindowInfo().windowHeight;
+const screenHeight = uni.getWindowInfo().screenHeight;
 const pickedRequirement = ref();
 const specsEditDialogShow = ref(false);
 
@@ -49,18 +52,22 @@ const publishRequirementCount = ref(0);
 const noticeList = ref([]);
 const pageParam = reactive({
   curPage: 1,
-  number: 10,
+  number: 5,
 });
 const refresher = useCustomRefresher();
 const navTransparent = useNavTransparent();
-
+const requirementList = ref([]);
 const {
   mutate: queryList,
-  data: requirementList,
   isLoading,
+  hasMore,
 } = useMutation(queryRequirementList, {
+  pagination: true,
   select({ data, sumcount }) {
-    publishRequirementCount.value = sumcount || 0;
+    publishRequirementCount.value =
+      currentStatus.value === null
+        ? sumcount || 0
+        : publishRequirementCount.value;
     return isNotEmpty(data)
       ? data.map((item) => ({
           ...item,
@@ -69,7 +76,8 @@ const {
       : [];
   },
 });
-
+const { style } = useSafeAreaStyle();
+const user = useUserStore();
 function redirectToPublish() {
   uni.reLaunch({
     url: "/pages/publish/index",
@@ -83,9 +91,13 @@ async function fetchData({
   refresh?: boolean;
   withoutStatus?: boolean;
 } = {}) {
-  if (refresh) pageParam.curPage = 1;
+  if (refresh) {
+    pageParam.curPage = 1;
+    requirementList.value = [];
+  }
 
-  await queryList({
+  const data = await queryList({
+    userId: user.userInfo.id,
     ...pageParam,
     ...(withoutStatus
       ? {}
@@ -93,13 +105,14 @@ async function fetchData({
           jobState: currentStatus.value,
         }),
   });
+  if (isNotEmpty(data)) requirementList.value.push(...data);
   pageParam.curPage += 1;
 }
 
 async function fetchNoticeList() {
   const { data } = await queryRequirementNotice({
     type: 1,
-    userId: 1,
+    userId: user.userInfo.id,
   });
   if (isNotEmpty(data)) {
     noticeList.value = data as any[];
@@ -127,7 +140,7 @@ async function handleEditPriceFinished({ data, isSuccess }) {
       await addOrEditRequirement({
         id: pickedRequirement.value.id,
         specs: data,
-        userId: 1,
+        userId: user.userInfo.id,
       });
       toast.info("修改成功");
       await fetchData({
@@ -148,6 +161,10 @@ async function handleRefresh() {
     }),
   );
 }
+
+onReachBottom(() => {
+  if (hasMore.value) fetchData();
+});
 
 onPageScroll((e) => {
   navTransparent.onScroll(e);
@@ -181,7 +198,7 @@ onShow(() => {
     }"
     class="common_bg"
   >
-    <safe-area-layout>
+    <view :style="style">
       <view class="h-160px flex items-center pl-68px text-24px font-700">
         发布记录
       </view>
@@ -216,41 +233,41 @@ onShow(() => {
       </view>
       <!--    需求列表 -->
       <scroll-view
-        :refresher-triggered="refresher.isRefreshing.value"
         :refresher-enabled="refresher.enableRefresh.value"
-        scroll-y
+        :refresher-triggered="refresher.isRefreshing.value"
         :throttle="false"
+        scroll-y
         @refresherrefresh="handleRefresh"
       >
-        <scroll-view>
-          <view
-            class="relative h-full mx-auto mt-28px w-90vw flex flex-col gap-y-18px"
-          >
-            <view class="flex items-center gap-x-22px text-14px">
-              <view
-                v-for="(item, index) in requirementStatusList"
-                :key="index"
-                :class="[currentStatus === item.value ? '' : 'text-#979797']"
-                @click="changStatus(item.value)"
-              >
-                {{ item.label }}
-              </view>
-            </view>
-            <notice-tips
-              v-if="isNotEmpty(noticeList)"
-              :notice-list="noticeList"
-              rounded-class="rounded-16px"
-            />
+        <view
+          class="relative h-full mx-auto mt-28px w-90vw flex flex-col gap-y-18px"
+        >
+          <view class="flex items-center gap-x-22px text-14px">
             <view
-              v-for="(item, index) in requirementList"
+              v-for="(item, index) in requirementStatusList"
               :key="index"
-              class="pb-24px"
+              :class="[currentStatus === item.value ? '' : 'text-#979797']"
+              @click="changStatus(item.value)"
             >
-              <requirement-card
-                :requirement="item"
-                @add-price="openEditPriceDialog"
-              />
+              {{ item.label }}
             </view>
+          </view>
+          <notice-tips
+            v-if="isNotEmpty(noticeList)"
+            :notice-list="noticeList"
+            rounded-class="rounded-16px"
+          />
+          <view
+            v-for="(item, index) in requirementList"
+            :key="index"
+            class="pb-24px"
+          >
+            <requirement-card
+              :requirement="item"
+              @add-price="openEditPriceDialog"
+            />
+          </view>
+          <view v-if="!isNotEmpty(requirementList)">
             <view
               v-if="isLoading"
               class="flex !my-1/3 items-center justify-center"
@@ -261,9 +278,9 @@ onShow(() => {
               <sar-empty description="暂无工单" />
             </view>
           </view>
-        </scroll-view>
+        </view>
       </scroll-view>
-    </safe-area-layout>
+    </view>
   </view>
 </template>
 

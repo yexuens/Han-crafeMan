@@ -43,3 +43,17 @@ export function queryRequirementNotice(data: {
 }) {
   return http.get("/oe_QueryNotice_.csp", data);
 }
+
+export function queryRequirementCount({
+  accesUserId,
+  userId,
+}: {
+  accesUserId?: number;
+  userId?: number;
+}) {
+  return http.get("/oe_QueryTotalNum_.csp", {
+    flag: "task",
+    accesUserId,
+    userId,
+  });
+}

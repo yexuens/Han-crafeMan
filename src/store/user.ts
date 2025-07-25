@@ -37,7 +37,7 @@ const initUser: IUserInfo = {
   joinTime: "",
   openId: "",
   phone: "",
-  role: 0,
+  role: -1,
   score: 0,
   sex: 0,
   storeId: 0,
@@ -54,7 +54,6 @@ export const useUserStore = defineStore(
     // 定义用户信息
     const userInfo = ref<IUserInfo>(initUser);
     const isLogin = computed(() => !!userInfo.value.id);
-
     async function login(req: IWxLoginReq) {
       const { code, user } = await wxLogin({
         ...req,

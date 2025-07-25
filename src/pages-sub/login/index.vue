@@ -12,8 +12,10 @@ import { imgRes } from "@/constants";
 import { getPhoneNumber } from "@/utils/auth";
 import { toast } from "@/utils/toast";
 import { useUserStore } from "@/store";
+import { navigateBack } from "@/utils";
 const hasAccept = ref(false);
 const user = useUserStore();
+const redirectUrl = ref();
 function navigateToPrivacy() {
   uni.navigateTo({
     url: "/pages-sub/privacy/index",
@@ -22,19 +24,36 @@ function navigateToPrivacy() {
 async function getPhoneNumberAndLogin({ detail }) {
   try {
     const data = await getPhoneNumber(detail);
-    const loginData = await user.login({
+    await user.login({
       phone: data.phoneNumber,
       openId: data.openid,
       wxName: "微信用户",
       wxPhoto: imgRes.defaultAvatar,
     });
+    handleLoginSuccess();
   } catch (e) {
     toast.info(e.message || "获取手机号码失败");
   }
 }
+function handleLoginSuccess() {
+  if (redirectUrl.value) {
+    uni.reLaunch({
+      url: redirectUrl.value,
+    });
+    return;
+  }
+  navigateBack();
+}
+onLoad((opt) => {
+  if (opt.redirect) {
+    redirectUrl.value = decodeURIComponent(opt.redirect);
+    console.log(redirectUrl.value);
+  }
+});
 </script>
 
 <template>
+  <nav-with-support :with-service-icon="false" title="" />
   <view>
     <image
       class="absolute left-0 top-0 h-screen w-screen -z-1"

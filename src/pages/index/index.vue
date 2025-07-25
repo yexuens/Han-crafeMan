@@ -12,7 +12,8 @@
 
 <script lang="ts" setup>
 import { imgRes } from "@/constants";
-
+import { queryCraftManCount } from "@/service/system";
+const craftManCount = ref(0);
 const current = ref(0);
 const list = [
   {
@@ -41,6 +42,13 @@ function handleCraftManRegistration() {
     url: "/pages-sub/craft_man_reg/index",
   });
 }
+async function fetchManCount() {
+  const data = (await queryCraftManCount()) as any;
+  craftManCount.value = data?.totalnum || 0;
+}
+onShow(() => {
+  fetchManCount();
+});
 </script>
 
 <template>
@@ -60,8 +68,8 @@ function handleCraftManRegistration() {
       >
         <view class="flex items-center justify-between pr-8px">
           <view class="flex gap-x-8px">
-            <text class="text-24px text-primary-500 font-bold italic">
-              217028
+            <text class="text-24px text-primary-500 font-bold">
+              {{ craftManCount }}
             </text>
             <text class="my-auto text-12px text-[#060606] font-500">
               名高标准工匠

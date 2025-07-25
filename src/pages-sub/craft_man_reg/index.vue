@@ -1,62 +1,66 @@
 <!-- 使用 type="home" 属性设置首页，其他页面不需要设置，默认为page -->
 <route lang="jsonc">
 {
-"layout": "customBar",
-"style": {
-// 'custom' 表示开启自定义导航栏，默认 'default'
-"navigationStyle": "custom",
-"disableScroll":true,
-}
+  "layout": "customBar",
+  "needLogin": true,
+  "style": {
+    // 'custom' 表示开启自定义导航栏，默认 'default'
+    "navigationStyle": "custom",
+    "disableScroll": true,
+  },
 }
 </route>
 
 <script setup lang="ts">
-import SafeAreaLayout from '@/components/safeAreaLayout.vue'
-import { imgRes } from '@/constants'
+import SafeAreaLayout from "@/components/safeAreaLayout.vue";
+import { imgRes } from "@/constants";
 </script>
 
 <template>
   <safe-area-layout>
-    <view class="relative ml-40px inline-block pt-85px text-center text-25px font-bold leading-7">
-      <text>
-        如何成为平台
-      </text>
-      <br>
-      <text class="underline-gradient">
-        注册工匠
-      </text>
+    <view
+      class="relative ml-40px inline-block pt-85px text-center text-25px font-bold leading-7"
+    >
+      <text> 如何成为平台 </text>
+      <br />
+      <text class="underline-gradient"> 注册工匠 </text>
     </view>
     <view
       class="relative mx-auto mt-40px h-full w-90vw flex flex-col items-center gap-y-20px rounded-12px bg-white px-18px py-35px -z-2"
     >
-      <view class="relative w-full flex items-center justify-between rounded-12px bg-[#E3EEFB] px-24px py-32px">
+      <view
+        class="relative w-full flex items-center justify-between rounded-12px bg-[#E3EEFB] px-24px py-32px"
+      >
         <image
-          style="position:absolute" class="bottom-100px right-0 h-200px w-130px -z-1"
+          style="position: absolute"
+          class="bottom-100px right-0 h-200px w-130px -z-1"
           :src="imgRes.squirrelFront"
         />
         <view class="flex flex-col gap-y-7px">
           <view class="text-18px text-[#4D99FF] font-bold">
             第一步 合同确认
           </view>
-          <view class="text-14px text-[#979797]">
-            尚未确认合同
-          </view>
+          <view class="text-14px text-[#979797]"> 尚未确认合同 </view>
         </view>
-        <view class="go_to_confirm_btn flex items-center justify-center text-14px text-white font-bold">
+        <view
+          class="go_to_confirm_btn flex items-center justify-center text-14px text-white font-bold"
+        >
           去确认
         </view>
       </view>
 
-      <view class="w-full flex items-center justify-between rounded-12px bg-[#EAF7EF] px-24px py-32px">
+      <view
+        class="w-full flex items-center justify-between rounded-12px bg-[#EAF7EF] px-24px py-32px"
+      >
         <view class="flex flex-col gap-y-7px">
           <view class="text-18px text-[#4D99FF] font-bold">
             第二步 信息填写
           </view>
-          <view class="text-14px text-[#979797]">
-            尚未提交资料
-          </view>
+          <view class="text-14px text-[#979797]"> 尚未提交资料 </view>
         </view>
-        <view class="goto_auth_btn flex items-center justify-center text-14px text-white font-bold">
+        <view
+          class="goto_auth_btn flex items-center justify-center text-14px text-white font-bold"
+        >
           去认证
         </view>
       </view>
@@ -66,7 +70,7 @@ import { imgRes } from '@/constants'
 
 <style scoped lang="scss">
 .underline-gradient:before {
-  content: '';
+  content: "";
   position: absolute;
   flex-shrink: 0;
   bottom: 0;

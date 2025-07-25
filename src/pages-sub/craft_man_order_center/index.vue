@@ -11,6 +11,8 @@
 <script lang="ts" setup>
 import { useMutation } from "@/http/useMutation";
 import {
+  addOrEditRequirement,
+  queryRequirementCount,
   queryRequirementList,
   queryRequirementNotice,
 } from "@/service/requirement";
@@ -18,27 +20,32 @@ import { isNotEmpty } from "@/utils";
 import { useNavTransparent } from "@/composables/useNavTransparent";
 import { cancelOrder, grabOrder } from "@/composables/useOrder";
 import { useCustomRefresher } from "@/composables/useCustomRefresher";
+import { toast } from "@/utils/toast";
+import { RequirementStatus } from "@/enums";
+import { useUserStore } from "@/store";
 
 const { screenHeight } = uni.getWindowInfo();
 
-const tabMenuBtnList = [
+const tabMenuBtnList = ref([
   {
     label: "待抢单",
     status: "0",
-    eq: "is",
+    count: 0,
   },
 
   {
     label: "已抢单",
     status: "1,2,3",
+    count: 0,
   },
 
   {
     label: "已取消",
     status: "4",
     customClass: "!ml-auto",
+    count: 0,
   },
-];
+]);
 const form = reactive({
   keyword: "",
   activeStatus: "0",
@@ -49,6 +56,7 @@ const pageParam = reactive({
 });
 const noticeList = ref([]);
 const navTransparent = useNavTransparent();
+const user = useUserStore();
 const refresher = useCustomRefresher();
 const { mutate: queryList, data: requirementList } = useMutation(
   queryRequirementList,
@@ -65,13 +73,15 @@ const { mutate: queryList, data: requirementList } = useMutation(
 );
 
 function handleSearch() {
-  console.log(form);
+  fetchData({
+    refresh: true,
+  });
 }
 
 async function fetchNoticeList() {
   const { data } = await queryRequirementNotice({
     type: 1,
-    userId: 1,
+    userId: user.userInfo.id,
   });
   if (isNotEmpty(data)) {
     noticeList.value = data as any[];
@@ -79,26 +89,42 @@ async function fetchNoticeList() {
 }
 
 async function handleCancelOrder(id: number) {
-  try {
-    await cancelOrder({
-      id,
-      userId: 1,
-      userRole: 1,
-    });
-  } finally {
-    fetchData({
-      refresh: true,
-    });
-  }
+  uni.showModal({
+    title: "取消工单",
+    content: "确认取消该工单吗？",
+    success: async (res) => {
+      if (res.confirm) {
+        try {
+          const { code } = await addOrEditRequirement({
+            id: id,
+            jobState: RequirementStatus.WasCanceled.valueOf(),
+            ...(user.userInfo.role === 1 && { accesUserId: user.userInfo.id }),
+            ...(user.userInfo.role === 0 && { userId: user.userInfo.id }),
+          });
+          if (code !== 1) throw new Error("取消工单失败");
+          toast.info("取消成功");
+        } catch (e) {
+          toast.info(e.message || "取消工单失败");
+        } finally {
+          fetchData({
+            refresh: true,
+          });
+        }
+      }
+    },
+  });
 }
 
 async function handleGrabOrder(id: number) {
   try {
     await grabOrder({
       id,
-      userId: 1,
-      userRole: 1,
+      userId: user.userInfo.id,
+      userRole: user.userInfo.role,
     });
+    toast.info("抢单成功");
+  } catch (e) {
+    toast.error("抢单失败");
   } finally {
     fetchData({
       refresh: true,
@@ -117,6 +143,9 @@ async function fetchData({
 
   await queryList({
     keyword: form.keyword,
+    ...{
+      accesUserId: form.activeStatus !== "0" ? user.userInfo.id : null,
+    },
     ...pageParam,
     ...(withoutStatus
       ? {}
@@ -126,7 +155,15 @@ async function fetchData({
   });
   pageParam.curPage += 1;
 }
-
+async function fetchRequirementCount() {
+  const data: any = await queryRequirementCount({
+    accesUserId: user.userInfo.id,
+  });
+  if (data.code === 1) {
+    tabMenuBtnList.value[0].count = data.Num1;
+    tabMenuBtnList.value[1].count = data.Num2;
+  }
+}
 async function handleRefresh() {
   refresher.onRefresh(() =>
     fetchData({
@@ -150,6 +187,7 @@ onShow(() => {
   fetchData({
     refresh: true,
   });
+  fetchRequirementCount();
 });
 </script>
 
@@ -208,6 +246,16 @@ onShow(() => {
             @click="changeStatus(item.status)"
           >
             {{ item.label }}
+            <view
+              v-if="item.count"
+              :class="[
+                form.activeStatus === item.status
+                  ? 'border-solid border-white border-0.1px'
+                  : 'bg-primary-500 text-white',
+              ]"
+              class="w-16px h-16px rounded-full center p-8px text-10px ml-4px"
+              >{{ item.count }}</view
+            >
           </sar-button>
         </view>
         <scroll-view

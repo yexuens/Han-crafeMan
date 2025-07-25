@@ -13,7 +13,11 @@ export interface IWxLoginReq {
   wxName?: string;
   wxPhoto?: string;
 }
-
+export interface IUpdateUserProfileReq {
+  sex?: number;
+  wxName?: string;
+  wxPhoto?: string;
+}
 export async function getWxInfo(data: { openid: string }) {
   return await http.get("/oe_wxInfoIt_.csp", data);
 }
@@ -37,4 +41,7 @@ export async function wxLogin(data: IWxLoginReq) {
     ...data,
     ...defaultLoginReq,
   });
+}
+export async function updateUserProfile() {
+  return http.get("/oe_updateUserData_.csp", {});
 }

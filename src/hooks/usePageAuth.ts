@@ -6,7 +6,7 @@ const loginRoute = import.meta.env.VITE_LOGIN_URL;
 const isDev = import.meta.env.DEV;
 function isLogined() {
   const userStore = useUserStore();
-  return !!userStore.isLogin;
+  return userStore.isLogin;
 }
 // 检查当前页面是否需要登录
 export function usePageAuth() {
@@ -15,7 +15,6 @@ export function usePageAuth() {
     const pages = getCurrentPages();
     const currentPage = pages[pages.length - 1];
     const currentPath = `/${currentPage.route}`;
-
     // 获取需要登录的页面列表
     let needLoginPages: string[] = [];
     if (isDev) {

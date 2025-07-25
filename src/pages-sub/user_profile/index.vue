@@ -12,7 +12,9 @@ import { toast } from "@/utils/toast";
 import ButtonView from "@/components/buttonView.vue";
 import { uploadImage } from "@/service/system";
 import { getPhone, wxLogin } from "@/service/user";
+import { useUserStore } from "@/store";
 
+let initialForm: Partial<typeof form> | null = null;
 const hasAccept = ref(false);
 const { screenHeight } = uni.getWindowInfo();
 const form = reactive({
@@ -20,7 +22,6 @@ const form = reactive({
   wxPhoto: "",
   openId: "",
   phone: null,
-  wxCode: "",
   sex: null,
 });
 
@@ -28,14 +29,25 @@ enum EnterScene {
   REG = 1,
   EDIT = 2,
 }
-
+const user = useUserStore();
 const currentScene = ref(EnterScene.REG);
 const navBarTitle = computed(() =>
   currentScene.value === EnterScene.REG ? "用户入驻" : "我的资料",
 );
-const schemaConfig = {
-  [EnterScene.REG]: {},
-};
+const isFormChanged = computed(() => {
+  // 如果不在修改场景或初始数据还未加载，则认为未改变
+  if (currentScene.value !== EnterScene.EDIT || !initialForm) {
+    return false;
+  }
+
+  // 逐个字段比较当前表单值与初始值是否不同
+  // 注意：我们不需要比较 phone，因为它在界面上是只读的
+  return (
+    form.wxName !== initialForm.wxName ||
+    form.wxPhoto !== initialForm.wxPhoto ||
+    form.sex !== initialForm.sex
+  );
+});
 
 const onSubmit = async () => {
   const { wxName, wxPhoto, phone } = form;
@@ -94,7 +106,20 @@ function onProfileEdit() {
   console.log("edit");
 }
 
-onShow(() => {});
+onLoad((opt) => {
+  if (opt.scene) {
+    currentScene.value = Number(opt.scene);
+    console.log(user.userInfo);
+    console.log(opt);
+    if (Number(opt.scene) === EnterScene.EDIT) {
+      form.sex = user.userInfo.sex;
+      form.wxName = user.userInfo.wxName;
+      form.wxPhoto = user.userInfo.wxPhoto;
+      form.phone = user.userInfo.phone;
+      initialForm = JSON.parse(JSON.stringify(form));
+    }
+  }
+});
 </script>
 
 <template>
@@ -144,24 +169,24 @@ onShow(() => {});
               type="nickname"
             />
           </sar-form-item>
-          <sar-form-item label="微信号" root-class="!py-14px">
-            <sar-input
-              v-model="form.wxCode"
-              inlaid
-              placeholder="请输入微信号"
-            />
-          </sar-form-item>
+          <!--          <sar-form-item label="微信号" root-class="!py-14px">-->
+          <!--            <sar-input-->
+          <!--              v-model="form.wxCode"-->
+          <!--              inlaid-->
+          <!--              placeholder="请输入微信号"-->
+          <!--            />-->
+          <!--          </sar-form-item>-->
           <sar-form-item label="性别" root-class="!py-14px">
             <sar-picker-input
               v-model="form.sex"
               :columns="[
                 {
                   label: '男',
-                  value: 1,
+                  value: 0,
                 },
                 {
                   label: '女',
-                  value: 0,
+                  value: 1,
                 },
               ]"
               placeholder="请选择"
@@ -181,7 +206,9 @@ onShow(() => {});
         >
           {{ hasAccept ? "完成入驻" : "请同意隐私协议" }}
         </sar-button>
-        <sar-button v-else @click="onProfileEdit"> 保存修改</sar-button>
+        <sar-button :disabled="!isFormChanged" v-else @click="onProfileEdit">
+          保存修改</sar-button
+        >
 
         <view
           v-if="currentScene === EnterScene.REG"

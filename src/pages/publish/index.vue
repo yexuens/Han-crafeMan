@@ -20,11 +20,14 @@ import {
   PublishRequirement,
   showZodError,
 } from "@/schemas";
+import { useUserStore } from "@/store";
+import { toast } from "@/utils/toast";
 
 const customUnit = reactive<IAddCustomSpecs>({
-  name: "",
+  unit: "",
   price: NaN,
 });
+const user = useUserStore();
 const form = reactive<IPublishRequirement>({
   address: "",
   area: "",
@@ -33,66 +36,70 @@ const form = reactive<IPublishRequirement>({
 const { mutate: publish } = useMutation(addOrEditRequirement);
 const unitList = ref<
   {
-    name: string;
+    unit: string;
     refPrice: number;
     userPrice: number | null;
   }[]
 >([
   {
-    name: "200x1200mm",
+    unit: "200x1200mm",
     refPrice: 24,
     userPrice: null,
   },
   {
-    name: "300x600mm",
+    unit: "300x600mm",
     refPrice: 18,
     userPrice: null,
   },
   {
-    name: "600x600mm",
+    unit: "600x600mm",
     refPrice: 28,
     userPrice: null,
   },
   {
-    name: "800x800mm",
+    unit: "800x800mm",
     refPrice: 35,
     userPrice: null,
   },
   {
-    name: "400x800mm",
+    unit: "400x800mm",
     refPrice: 22,
     userPrice: null,
   },
   {
-    name: "750x1500mm",
+    unit: "750x1500mm",
     refPrice: 58,
     userPrice: null,
   },
   {
-    name: "900x1800mm",
+    unit: "900x1800mm",
     refPrice: 75,
     userPrice: null,
   },
   {
-    name: "300x300mm",
+    unit: "300x300mm",
     refPrice: 12,
     userPrice: null,
   },
 ]);
 const getSpecs = () =>
   form.pickedSpecs.map((name) => {
-    const item = unitList.value.find((unit) => unit.name === name);
+    const item = unitList.value.find((unit) => unit.unit === name);
     if (!item) {
       throw new Error("规格不存在");
     }
     return {
-      unit: item.name,
+      unit: item.unit,
       price: item.userPrice ? item.userPrice : item.refPrice,
     };
   });
 
 async function handlePublish() {
   try {
+    if (!user.isLogin) {
+      toast.info("请先登录");
+      return;
+    }
     PublishRequirement.parse(form);
     uni.showModal({
       title: "确认发布",
@@ -103,7 +110,7 @@ async function handlePublish() {
           await publish({
             ...form,
             specs,
-            userId: 1,
+            userId: user.userInfo.id,
           });
           resetForm();
           await uni.showToast({
@@ -125,7 +132,7 @@ function addCustomUnit() {
     return;
   }
   unitList.value.push({
-    wxName: customUnit.name,
+    unit: customUnit.unit,
     refPrice: Number(customUnit.price),
     userPrice: Number(customUnit.price),
   });
@@ -136,7 +143,7 @@ function addCustomUnit() {
   resetCustomUnit();
 }
 
-function toggleUnit({ name }: { name: string }) {
+function toggleUnit(name: string) {
   const currentUnit = form.pickedSpecs.find((unit) => unit === name);
   if (currentUnit) {
     const curIdx = form.pickedSpecs.indexOf(currentUnit);
@@ -153,7 +160,7 @@ function resetForm() {
 }
 
 function resetCustomUnit() {
-  customUnit.name = "";
+  customUnit.unit = "";
   customUnit.price = NaN;
 }
 </script>
@@ -208,16 +215,16 @@ function resetCustomUnit() {
                 v-for="(unit, index) in unitList"
                 :key="index"
                 class="h-70px flex transition-all duration-200 ease-in-out"
-                @click="toggleUnit(unit)"
+                @click="toggleUnit(unit.unit)"
               >
                 <view
-                  v-if="form.pickedSpecs.includes(unit.name)"
+                  v-if="form.pickedSpecs.includes(unit.unit)"
                   class="h-full w-full rounded-7px bg-primary-500 px-16px py-8px text-white tracking-wider"
                 >
                   <view
                     class="border-b-0.5px border-b-white border-b-solid pb-1px text-14px"
                   >
-                    {{ unit.name }}
+                    {{ unit.unit }}
                   </view>
                   <view
                     class="mt-1px flex items-center justify-between text-12px"
@@ -246,7 +253,7 @@ function resetCustomUnit() {
                   v-else
                   class="my-auto h-52px w-full flex items-center justify-center rounded-7px bg-[#F6F6F6] text-14px text-[#666]"
                 >
-                  {{ unit.name }}
+                  {{ unit.unit }}
                 </view>
               </view>
             </view>
@@ -260,7 +267,7 @@ function resetCustomUnit() {
                 class="w-65% flex items-center justify-center border-r-1px border-r-gray border-r-solid"
               >
                 <view class="shrink-0"> 自填规格：</view>
-                <input v-model="customUnit.name" class="custom-unit-input" />
+                <input v-model="customUnit.unit" class="custom-unit-input" />
               </view>
               <view class="flex items-center justify-center pl-12px">
                 <view class="shrink-0"> 出价：</view>
