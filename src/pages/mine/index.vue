@@ -65,6 +65,7 @@ onPullDownRefresh(async () => {
 <template>
   <view :style="`height: ${screenHeight}px`" class="mine_bg flex flex-col">
     <nav-with-support
+      :left-arrow="false"
       :transparent="navTransparent.transparent.value"
       title="工作台"
     />
@@ -118,6 +119,7 @@ onPullDownRefresh(async () => {
             <view class="font-500"> 常用功能</view>
             <view class="grid grid-cols-4 mt-18px gap-40px">
               <button
+                hover-class="none"
                 v-for="(item, index) in featureList"
                 :key="index"
                 class="flex flex-col items-center justify-center !bg-transparent !p-0"

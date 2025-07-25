@@ -36,7 +36,7 @@ const bannerList = [
   "https://cdn.juesedao.cn/mdy/2a81d7f356fa44d981e77ecc77220a67",
 ];
 const { screenHeight } = uni.getWindowInfo();
-function navigateToCraftRegistration() {
+function handleCraftManRegistration() {
   uni.navigateTo({
     url: "/pages-sub/craft_man_reg/index",
   });
@@ -67,7 +67,12 @@ function navigateToCraftRegistration() {
               名高标准工匠
             </text>
           </view>
-          <custom-icon :width="28" :height="24" icon-name="serviceIcon" />
+          <icon-button
+            open-type="contact"
+            :width="28"
+            :height="24"
+            icon-name="serviceIcon"
+          />
         </view>
         <view class="flex items-center gap-x-4px">
           <custom-icon :size="12" icon-name="funIcon" />
@@ -134,7 +139,7 @@ function navigateToCraftRegistration() {
     class="fixed bottom-100px right-0 h-40px w-100px"
     mode="widthFix"
     :src="imgRes.registerCraftButton"
-    @click="navigateToCraftRegistration"
+    @click="handleCraftManRegistration"
   />
   <!--  接单中心 -->
   <view

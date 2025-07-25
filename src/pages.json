@@ -121,12 +121,35 @@
           }
         },
         {
+          "path": "login/index",
+          "type": "page",
+          "layout": "default",
+          "style": {
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "privacy/index",
+          "type": "page",
+          "style": {
+            "navigationBarTitleText": "隐私政策"
+          }
+        },
+        {
           "path": "requirement_detail/index",
           "type": "page",
           "layout": "default",
           "style": {
             "navigationStyle": "custom",
             "enablePullDownRefresh": true
+          }
+        },
+        {
+          "path": "user_reg/index",
+          "type": "page",
+          "layout": "default",
+          "style": {
+            "navigationStyle": "custom"
           }
         },
         {

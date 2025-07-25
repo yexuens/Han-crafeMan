@@ -1,7 +1,12 @@
 // 枚举定义
 export type IResData<T = any> = {
-  code: number;
+  code: number | string;
   data: T | T[];
+  record?: T | T[];
+  records?: T | T[];
+  phoneNumber?: string;
+  user?: any;
+  openid?: string;
   msg: string;
   sumcount?: number;
   totalPage?: number;

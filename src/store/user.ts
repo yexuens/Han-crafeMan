@@ -1,97 +1,108 @@
-import type { IUserInfoVo } from '@/api/types/login'
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import {
-  getUserInfo as _getUserInfo,
-  login as _login,
-  logout as _logout,
-  wxLogin as _wxLogin,
-  getWxCode,
-} from '@/api/login'
-import { toast } from '@/utils/toast'
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import { getWxInfo, IWxLoginReq, wxLogin } from "@/service/user";
+import { currRoute } from "@/utils";
 
-// 初始化状态
-const userInfoState: IUserInfoVo = {
-  id: 0,
-  role: -1,
-  token: '',
+interface IUserInfo {
+  address: string;
+  brandId: number;
+  createTime: string;
+  id: number;
+  integral: number;
+  joinTime: string;
+  openId: string;
+  phone: string;
+  role: number;
+  score: number;
+  sex: number;
+  storeId: number;
+  storeStatus: number;
+  token: string;
+  updateTime: string;
+  wxName: string;
+  wxPhoto: string;
 }
 
+interface IWxLoginResp {
+  code: number;
+  user: IUserInfo;
+}
+
+const initUser: IUserInfo = {
+  address: "",
+  brandId: 0,
+  createTime: "",
+  id: 0,
+  integral: 0,
+  joinTime: "",
+  openId: "",
+  phone: "",
+  role: 0,
+  score: 0,
+  sex: 0,
+  storeId: 0,
+  storeStatus: 1001,
+  token: "",
+  updateTime: "",
+  wxName: "",
+  wxPhoto: "",
+};
+
 export const useUserStore = defineStore(
-  'user',
+  "user",
   () => {
     // 定义用户信息
-    const userInfo = ref<IUserInfoVo>({ ...userInfoState })
-    // 设置用户信息
-    const setUserInfo = (val: IUserInfoVo) => {
-      console.log('设置用户信息', val)
-      userInfo.value = val
-    }
-    // 删除用户信息
-    const removeUserInfo = () => {
-      userInfo.value = { ...userInfoState }
-      uni.removeStorageSync('userInfo')
-      uni.removeStorageSync('token')
-    }
-    /**
-     * 获取用户信息
-     */
-    const getUserInfo = async () => {
-      const res = await _getUserInfo()
-      const userInfo = res.data
-      setUserInfo(userInfo)
-      uni.setStorageSync('userInfo', userInfo)
-      uni.setStorageSync('token', userInfo.token)
-      // TODO 这里可以增加获取用户路由的方法 根据用户的角色动态生成路由
-      return res
-    }
-    /**
-     * 用户登录
-     * @param credentials 登录参数
-     * @returns R<IUserLogin>
-     */
-    const login = async (credentials: {
-      username: string
-      password: string
-      code: string
-      uuid: string
-    }) => {
-      const res = await _login(credentials)
-      console.log('登录信息', res)
-      toast.success('登录成功')
-      await getUserInfo()
-      return res
+    const userInfo = ref<IUserInfo>(initUser);
+    const isLogin = computed(() => !!userInfo.value.id);
+
+    async function login(req: IWxLoginReq) {
+      const { code, user } = await wxLogin({
+        ...req,
+      });
+      if (code !== 1) {
+        throw new Error("登录失败！");
+      }
+      userInfo.value = { ...user };
+      await updateUser();
     }
 
-    /**
-     * 退出登录 并 删除用户信息
-     */
-    const logout = async () => {
-      _logout()
-      removeUserInfo()
+    function checkLogin() {
+      const curr = currRoute();
+      if (!isLogin.value) {
+        uni.showModal({
+          title: "暂未登录，请登录后在访问",
+          cancelText: "稍后登录",
+          confirmText: "前往登录",
+          success(res) {
+            if (res.confirm)
+              uni.redirectTo({
+                url: "/pages/login?redirect=" + JSON.stringify(curr),
+              });
+          },
+        });
+        throw new Error("user Not Logged In");
+      }
     }
-    /**
-     * 微信登录
-     */
-    const wxLogin = async () => {
-      // 获取微信小程序登录的code
-      const data = await getWxCode()
-      console.log('微信登录code', data)
 
-      const res = await _wxLogin(data)
-      await getUserInfo()
-      return res
+    async function updateUser() {
+      if (!isLogin.value) return;
+      const { record, msg } = await getWxInfo({
+        openid: userInfo.value.openId,
+      });
+      if (msg === "成功") {
+        userInfo.value = { ...(record as unknown as IUserInfo) };
+      }
     }
 
     return {
       userInfo,
       login,
-      wxLogin,
-      getUserInfo,
-      logout,
-    }
+      isLogin,
+      checkLogin,
+      updateUser,
+    };
   },
   {
     persist: true,
   },
-)
+);

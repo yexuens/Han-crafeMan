@@ -18,7 +18,10 @@ export function http<T = any>(options: CustomRequestOptions) {
       // #endif
       // 响应成功
       success(res) {
-        resolve(res.data as IResData<T>);
+        const data = res.data as IResData<T>;
+        if (data.code && !isNaN(Number(data.code)))
+          data.code = Number(data.code);
+        resolve(data);
       },
       // 响应失败
       fail(err) {

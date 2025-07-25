@@ -125,7 +125,7 @@ function addCustomUnit() {
     return;
   }
   unitList.value.push({
-    name: customUnit.name,
+    wxName: customUnit.name,
     refPrice: Number(customUnit.price),
     userPrice: Number(customUnit.price),
   });
