@@ -1,6 +1,7 @@
 import type { CustomRequestOptions } from "@/http/interceptor";
 import { env } from "@/constants";
 import { IResData } from "@/typings";
+import { parseDeepJSON } from "@/utils";
 
 export function http<T = any>(options: CustomRequestOptions) {
   if (options.query) {
@@ -18,7 +19,7 @@ export function http<T = any>(options: CustomRequestOptions) {
       // #endif
       // 响应成功
       success(res) {
-        const data = res.data as IResData<T>;
+        const data = parseDeepJSON(res.data) as IResData<T>;
         if (data.code && !isNaN(Number(data.code)))
           data.code = Number(data.code);
         resolve(data);

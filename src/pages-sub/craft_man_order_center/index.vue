@@ -65,7 +65,7 @@ const { mutate: queryList, data: requirementList } = useMutation(
       return isNotEmpty(data)
         ? data.map((item) => ({
             ...item,
-            specs: item.specs?.startsWith("[") ? JSON.parse(item.specs) : [],
+            specs: item.specs || [],
           }))
         : [];
     },
@@ -120,7 +120,7 @@ async function handleGrabOrder(id: number) {
     await grabOrder({
       id,
       userId: user.userInfo.id,
-      userRole: user.userInfo.role,
+      userRole: 1,
     });
     toast.info("抢单成功");
   } catch (e) {

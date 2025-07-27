@@ -68,7 +68,7 @@ async function getDetail(id: number) {
     let rawData = data[0];
     requirementDetail.value = {
       ...rawData,
-      specs: rawData.specs?.startsWith("[") ? JSON.parse(rawData.specs) : [],
+      specs: rawData.specs || [],
     };
   } else {
     toast.info("获取工单详情失败");

@@ -186,3 +186,36 @@ export function isNotEmpty<T>(data: T) {
   }
   return !!data;
 }
+
+/**
+ * 递归遍历对象/数组，尝试将所有值为字符串的字段进行 JSON.parse
+ * @param {any} data - 需要处理的数据
+ * @returns {any} - 处理完成后的数据
+ */
+export function parseDeepJSON(data: any) {
+  if (typeof data !== "object" || data === null) {
+    return data;
+  }
+
+  if (Array.isArray(data)) {
+    return data.map((item) => parseDeepJSON(item));
+  }
+
+  const result = {};
+  for (const key in data) {
+    if (Object.prototype.hasOwnProperty.call(data, key)) {
+      const value = data[key];
+      if (typeof value === "string") {
+        try {
+          const parsedValue = JSON.parse(value);
+          result[key] = parseDeepJSON(parsedValue);
+        } catch (e) {
+          result[key] = value;
+        }
+      } else {
+        result[key] = parseDeepJSON(value);
+      }
+    }
+  }
+  return result;
+}

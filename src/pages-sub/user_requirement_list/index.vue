@@ -68,12 +68,7 @@ const {
       currentStatus.value === null
         ? sumcount || 0
         : publishRequirementCount.value;
-    return isNotEmpty(data)
-      ? data.map((item) => ({
-          ...item,
-          specs: item.specs?.startsWith("[") ? JSON.parse(item.specs) : [],
-        }))
-      : [];
+    return data || [];
   },
 });
 const { style } = useSafeAreaStyle();
