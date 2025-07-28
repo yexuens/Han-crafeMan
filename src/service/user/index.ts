@@ -18,6 +18,11 @@ export interface IUpdateUserProfileReq {
   wxName?: string;
   wxPhoto?: string;
   userId: string | number;
+  district?: string | number;
+  integral?: 1 | 0;
+  role?: number;
+  city?: string;
+  name?: string;
 }
 export async function getWxInfo(data: { openid: string }) {
   return await http.get("/oe_wxInfoIt_.csp", data);

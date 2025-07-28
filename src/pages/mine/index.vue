@@ -167,6 +167,7 @@ onPullDownRefresh(async () => {
           <view class="font-500"> 常用功能</view>
           <view class="grid grid-cols-4 mt-18px gap-40px">
             <button
+              @click="item.handleFunc"
               hover-class="none"
               v-for="(item, index) in featureList"
               :key="index"

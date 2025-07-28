@@ -3,7 +3,7 @@ import { env } from "@/constants";
 import { IResData } from "@/typings";
 import { parseDeepJSON } from "@/utils";
 
-export function http<T = any>(options: CustomRequestOptions) {
+export function http<T = any | any[]>(options: CustomRequestOptions) {
   if (options.query) {
     options.query["dbName"] = env.dbName;
   } else if (options.data) {

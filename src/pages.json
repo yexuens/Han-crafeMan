@@ -116,9 +116,9 @@
           "path": "craft_man_reg_auth/index",
           "type": "page",
           "layout": "customBar",
+          "needLogin": true,
           "style": {
-            "navigationStyle": "custom",
-            "disableScroll": true
+            "navigationStyle": "custom"
           }
         },
         {

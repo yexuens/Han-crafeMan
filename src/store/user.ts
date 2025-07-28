@@ -36,7 +36,7 @@ const initUser: IUserInfo = {
   integral: 0,
   joinTime: "",
   openId: "",
-  phone: "",
+  district: "",
   role: -1,
   score: 0,
   sex: 0,

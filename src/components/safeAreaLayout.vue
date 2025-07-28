@@ -3,18 +3,18 @@ defineOptions({
   options: {
     virtualHost: true,
     addGlobalClass: true,
-    styleIsolation: 'shared',
+    styleIsolation: "shared",
   },
-})
-const menuButtonArea = uni.getMenuButtonBoundingClientRect()
+});
+const menuButtonArea = uni.getMenuButtonBoundingClientRect();
 </script>
 
 <template>
-  <view :style="`padding-top: ${menuButtonArea.top + menuButtonArea.height}px;`">
+  <view
+    :style="`padding-top: ${menuButtonArea.top + menuButtonArea.height}px;`"
+  >
     <slot />
   </view>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

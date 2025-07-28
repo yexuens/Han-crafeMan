@@ -16,7 +16,7 @@ import { imgRes } from "@/constants";
 import { toast } from "@/utils/toast";
 function gotoConfirm() {
   uni.navigateTo({
-    url: "/pages-sub/craft_man_reg/index",
+    url: "/pages-sub/craft_man_reg_auth/index",
   });
 }
 function goToAuthentication() {

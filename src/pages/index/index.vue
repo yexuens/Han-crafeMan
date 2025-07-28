@@ -13,6 +13,8 @@
 <script lang="ts" setup>
 import { imgRes } from "@/constants";
 import { queryCraftManCount } from "@/service/system";
+import { useUserStore } from "@/store";
+import { queryRequirementCount } from "@/service/requirement";
 const craftManCount = ref(0);
 const current = ref(0);
 const list = [
@@ -27,8 +29,8 @@ const list = [
       "酒酣胸胆尚开张。鬓微霜，又何妨！持节云中，何日遣冯唐？会挽雕弓如满月，西北望，射天狼。",
   },
 ];
-const isCraftMan = ref(false);
-const isLogin = ref(false);
+const isCraftMan = computed(() => user.userInfo?.role === 1);
+const user = useUserStore();
 const popupShow = ref(false);
 const menuButtonArea = uni.getMenuButtonBoundingClientRect();
 const bannerList = [
@@ -36,6 +38,7 @@ const bannerList = [
   "https://cdn.juesedao.cn/mdy/6d62ae3a3fec4e39933010403d456b54",
   "https://cdn.juesedao.cn/mdy/2a81d7f356fa44d981e77ecc77220a67",
 ];
+const newRequirementCount = ref(0);
 const { screenHeight } = uni.getWindowInfo();
 function handleCraftManRegistration() {
   uni.navigateTo({
@@ -46,8 +49,22 @@ async function fetchManCount() {
   const data = (await queryCraftManCount()) as any;
   craftManCount.value = data?.totalnum || 0;
 }
+async function fetchRequirementCount() {
+  const data: any = await queryRequirementCount({
+    accesUserId: user.userInfo.id,
+  });
+  if (data.code === 1) {
+    newRequirementCount.value = data.Num1;
+  }
+}
+function navigateToOrderCenter() {
+  uni.navigateTo({
+    url: "/pages-sub/craft_man_order_center/index",
+  });
+}
 onShow(() => {
   fetchManCount();
+  if (isCraftMan.value) fetchRequirementCount();
 });
 </script>
 
@@ -143,7 +160,7 @@ onShow(() => {
   </view>
   <content-popup v-model="popupShow" />
   <image
-    v-if="!isLogin"
+    v-if="!user.isLogin"
     class="fixed bottom-100px right-0 h-40px w-100px"
     mode="widthFix"
     :src="imgRes.registerCraftButton"
@@ -151,13 +168,16 @@ onShow(() => {
   />
   <!--  接单中心 -->
   <view
-    v-if="isCraftMan && isLogin"
-    class="fixed bottom-100px left-50% h-[66px] w-[350px] flex shrink-0 items-center rounded-[20px] bg-gradient-[180deg,#FE9B6A_0%,#F6631B_100%] bg-gradient-linear px-26px py-8px shadow-[0px_4px_4px_0px_#FFD1BA,0px_4px_4px_0px_#FFE6D9,0px_4px_4px_0px_#FFBB98_inset] -translate-x-1/2"
+    @click="navigateToOrderCenter"
+    v-if="isCraftMan && user.isLogin"
+    class="fixed bottom-40px left-50% h-[66px] w-[350px] flex shrink-0 items-center rounded-[20px] bg-gradient-[180deg,#FE9B6A_0%,#F6631B_100%] bg-gradient-linear px-26px py-8px shadow-[0px_4px_4px_0px_#FFD1BA,0px_4px_4px_0px_#FFE6D9,0px_4px_4px_0px_#FFBB98_inset] -translate-x-1/2"
   >
     <image class="h-50px w-50px" :src="imgRes.orderReceivingCenter" />
     <view class="ml-6px text-25px text-white"> 接单中心 </view>
     <view class="ml-auto flex flex-col">
-      <view class="text-12px text-[#872C00]"> +16条新需求 </view>
+      <view class="text-12px text-[#872C00]">
+        +{{ newRequirementCount }}条新需求
+      </view>
       <view class="text-right text-10px text-white"> 马上查看 </view>
     </view>
   </view>
