@@ -17,6 +17,7 @@ export interface IUpdateUserProfileReq {
   sex?: number;
   wxName?: string;
   wxPhoto?: string;
+  userId: string | number;
 }
 export async function getWxInfo(data: { openid: string }) {
   return await http.get("/oe_wxInfoIt_.csp", data);

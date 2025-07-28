@@ -13,6 +13,7 @@ import ButtonView from "@/components/buttonView.vue";
 import { uploadImage } from "@/service/system";
 import { getPhone, updateUserProfile, wxLogin } from "@/service/user";
 import { useUserStore } from "@/store";
+import { getPhoneNumber } from "@/utils/auth";
 
 let initialForm: Partial<typeof form> | null = null;
 const hasAccept = ref(false);
@@ -36,13 +37,9 @@ const navBarTitle = computed(() =>
   currentScene.value === EnterScene.REG ? "用户入驻" : "我的资料",
 );
 const isFormChanged = computed(() => {
-  // 如果不在修改场景或初始数据还未加载，则认为未改变
   if (currentScene.value !== EnterScene.EDIT || !initialForm) {
     return false;
   }
-
-  // 逐个字段比较当前表单值与初始值是否不同
-  // 注意：我们不需要比较 phone，因为它在界面上是只读的
   return (
     form.wxName !== initialForm.wxName ||
     form.wxPhoto !== initialForm.wxPhoto ||
@@ -70,24 +67,26 @@ const onSubmit = async () => {
   }
 };
 
-async function handleUserReg(form) {
+async function handleUserReg(_form: typeof form) {
   const res = await wxLogin({
-    ...form,
+    ..._form,
   });
   if (res.code == 1) {
     console.log(res);
   }
 }
 
-async function handleUserUpdate(form) {
-  console.log(form);
+async function handleUserUpdate(_form: typeof form) {
   const res = await updateUserProfile({
-    wxName: form.wxName,
-    wxPhoto: form.wxPhoto,
-    sex: form.sex,
+    wxName: _form.wxName,
+    wxPhoto: _form.wxPhoto,
+    sex: _form.sex,
+    userId: user.userInfo.id,
   });
   if (res.code == 1) {
-    console.log(res);
+    toast.info("更新成功");
+  } else {
+    toast.info("更新失败");
   }
 }
 
@@ -100,44 +99,22 @@ function navigateToPrivacy() {
 function getUserAvatar(e) {
   const { avatarUrl } = e.detail;
   if (!avatarUrl) return;
-  console.log(avatarUrl);
   uploadImage(avatarUrl).then((url: string) => {
     form.wxPhoto = url;
   });
 }
 
-function getPhoneNumberAndSubmit(e) {
-  const { detail } = e;
-  return new Promise((resolve, reject) => {
-    uni.login({
-      success: async (res) => {
-        const { code, phoneNumber, openid } = await getPhone({
-          js_code: res.code,
-          iv: detail.iv,
-          encryptedData: detail.encryptedData!,
-        });
-        if (code == 1) {
-          form.phone = phoneNumber;
-          form.openId = openid;
-          await onSubmit();
-          resolve(true);
-        } else {
-          reject(false);
-        }
-      },
-    });
+async function getPhoneNumberAndSubmit({ detail }) {
+  return getPhoneNumber(detail).then(({ phoneNumber, openid }) => {
+    form.phone = phoneNumber;
+    form.openId = openid;
+    onSubmit();
   });
-}
-
-function onProfileEdit() {
-  console.log("edit");
 }
 
 onLoad((opt) => {
   if (opt.scene) {
     currentScene.value = Number(opt.scene);
-    console.log(user.userInfo);
-    console.log(opt);
     if (Number(opt.scene) === EnterScene.EDIT) {
       form.sex = user.userInfo.sex;
       form.wxName = user.userInfo.wxName;
@@ -196,13 +173,6 @@ onLoad((opt) => {
               type="nickname"
             />
           </sar-form-item>
-          <!--          <sar-form-item label="微信号" root-class="!py-14px">-->
-          <!--            <sar-input-->
-          <!--              v-model="form.wxCode"-->
-          <!--              inlaid-->
-          <!--              placeholder="请输入微信号"-->
-          <!--            />-->
-          <!--          </sar-form-item>-->
           <sar-form-item label="性别" root-class="!py-14px">
             <sar-picker-input
               v-model="form.sex"

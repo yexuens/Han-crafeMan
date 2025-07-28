@@ -12,60 +12,72 @@
 </route>
 
 <script setup lang="ts">
-import SafeAreaLayout from "@/components/safeAreaLayout.vue";
 import { imgRes } from "@/constants";
+import { toast } from "@/utils/toast";
+function gotoConfirm() {
+  uni.navigateTo({
+    url: "/pages-sub/craft_man_reg/index",
+  });
+}
+function goToAuthentication() {
+  toast.info("请先确认合同");
+}
+const { screenHeight } = uni.getWindowInfo();
 </script>
 
 <template>
-  <safe-area-layout>
-    <view
-      class="relative ml-40px inline-block pt-85px text-center text-25px font-bold leading-7"
-    >
-      <text> 如何成为平台 </text>
-      <br />
-      <text class="underline-gradient"> 注册工匠 </text>
-    </view>
-    <view
-      class="relative mx-auto mt-40px h-full w-90vw flex flex-col items-center gap-y-20px rounded-12px bg-white px-18px py-35px -z-2"
-    >
+  <view :style="`min-height: ${screenHeight}px`" class="bg relative">
+    <safe-area-layout>
       <view
-        class="relative w-full flex items-center justify-between rounded-12px bg-[#E3EEFB] px-24px py-32px"
+        class="ml-40px relative inline-block pt-85px text-center text-25px font-bold leading-7"
       >
+        <text> 如何成为平台 </text>
+        <br />
+        <text class="underline-gradient"> 注册工匠 </text>
+      </view>
+      <view
+        class="mx-auto relative mt-40px h-full w-90vw flex flex-col items-center gap-y-20px rounded-12px bg-white px-18px py-35px"
+      >
+        <view
+          class="relative z-11 w-full flex items-center justify-between rounded-12px bg-[#E3EEFB] px-24px py-32px"
+        >
+          <view class="flex flex-col gap-y-7px">
+            <view class="text-18px text-[#4D99FF] font-bold">
+              第一步 合同确认
+            </view>
+            <view class="text-14px text-[#979797]"> 尚未确认合同 </view>
+          </view>
+          <view
+            @click="gotoConfirm"
+            class="go_to_confirm_btn flex items-center justify-center text-14px text-white font-bold"
+          >
+            去确认
+          </view>
+        </view>
         <image
           style="position: absolute"
-          class="bottom-100px right-0 h-200px w-130px -z-1"
+          class="-top-148px right-28px h-200px w-130px z-10"
           :src="imgRes.squirrelFront"
         />
-        <view class="flex flex-col gap-y-7px">
-          <view class="text-18px text-[#4D99FF] font-bold">
-            第一步 合同确认
-          </view>
-          <view class="text-14px text-[#979797]"> 尚未确认合同 </view>
-        </view>
         <view
-          class="go_to_confirm_btn flex items-center justify-center text-14px text-white font-bold"
+          @click="goToAuthentication"
+          class="w-full flex items-center justify-between rounded-12px bg-[#EAF7EF] px-24px py-32px"
         >
-          去确认
+          <view class="flex flex-col gap-y-7px">
+            <view class="text-18px text-[#4D99FF] font-bold">
+              第二步 信息填写
+            </view>
+            <view class="text-14px text-[#979797]"> 尚未提交资料 </view>
+          </view>
+          <view
+            class="goto_auth_btn flex items-center justify-center text-14px text-white font-bold"
+          >
+            去认证
+          </view>
         </view>
       </view>
-
-      <view
-        class="w-full flex items-center justify-between rounded-12px bg-[#EAF7EF] px-24px py-32px"
-      >
-        <view class="flex flex-col gap-y-7px">
-          <view class="text-18px text-[#4D99FF] font-bold">
-            第二步 信息填写
-          </view>
-          <view class="text-14px text-[#979797]"> 尚未提交资料 </view>
-        </view>
-        <view
-          class="goto_auth_btn flex items-center justify-center text-14px text-white font-bold"
-        >
-          去认证
-        </view>
-      </view>
-    </view>
-  </safe-area-layout>
+    </safe-area-layout>
+  </view>
 </template>
 
 <style scoped lang="scss">
@@ -102,5 +114,13 @@ import { imgRes } from "@/constants";
   box-shadow:
     0px 4px 4px 0px rgba(72, 184, 50, 0.25) inset,
     0px 4px 4px 0px #b4f2c7;
+}
+.bg {
+  background: linear-gradient(
+    180deg,
+    #fc7c44 10.05%,
+    #f7ded2 24.44%,
+    #f6f6f6 100.12%
+  );
 }
 </style>
