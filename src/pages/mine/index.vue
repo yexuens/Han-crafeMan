@@ -73,7 +73,6 @@ async function fetchNotice() {
       accesUserId: user.userInfo.role === 1 ? user.userInfo.id : null,
     },
   });
-  console.log(data);
 }
 function navigateToEditProfile() {
   uni.navigateTo({
@@ -84,6 +83,7 @@ onShow(async () => {
   if (!user.isLogin) return;
   fetchData();
   fetchNotice();
+  user.updateUser();
 });
 
 onPageScroll((e) => {

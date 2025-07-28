@@ -11,7 +11,7 @@
 import { toast } from "@/utils/toast";
 import ButtonView from "@/components/buttonView.vue";
 import { uploadImage } from "@/service/system";
-import { getPhone, wxLogin } from "@/service/user";
+import { getPhone, updateUserProfile, wxLogin } from "@/service/user";
 import { useUserStore } from "@/store";
 
 let initialForm: Partial<typeof form> | null = null;
@@ -29,6 +29,7 @@ enum EnterScene {
   REG = 1,
   EDIT = 2,
 }
+
 const user = useUserStore();
 const currentScene = ref(EnterScene.REG);
 const navBarTitle = computed(() =>
@@ -59,10 +60,36 @@ const onSubmit = async () => {
     toast.info("请获取电话号码");
     return;
   }
-  await wxLogin({
+  switch (currentScene.value) {
+    case EnterScene.REG:
+      handleUserReg(form);
+      break;
+    case EnterScene.EDIT:
+      handleUserUpdate(form);
+      break;
+  }
+};
+
+async function handleUserReg(form) {
+  const res = await wxLogin({
     ...form,
   });
-};
+  if (res.code == 1) {
+    console.log(res);
+  }
+}
+
+async function handleUserUpdate(form) {
+  console.log(form);
+  const res = await updateUserProfile({
+    wxName: form.wxName,
+    wxPhoto: form.wxPhoto,
+    sex: form.sex,
+  });
+  if (res.code == 1) {
+    console.log(res);
+  }
+}
 
 function navigateToPrivacy() {
   uni.navigateTo({
@@ -206,9 +233,9 @@ onLoad((opt) => {
         >
           {{ hasAccept ? "完成入驻" : "请同意隐私协议" }}
         </sar-button>
-        <sar-button :disabled="!isFormChanged" v-else @click="onProfileEdit">
-          保存修改</sar-button
-        >
+        <sar-button v-else :disabled="!isFormChanged" @click="onSubmit">
+          保存修改
+        </sar-button>
 
         <view
           v-if="currentScene === EnterScene.REG"

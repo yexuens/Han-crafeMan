@@ -42,6 +42,6 @@ export async function wxLogin(data: IWxLoginReq) {
     ...defaultLoginReq,
   });
 }
-export async function updateUserProfile() {
-  return http.get("/oe_updateUserData_.csp", {});
+export async function updateUserProfile(data: IUpdateUserProfileReq) {
+  return http.get("/oe_updateUserData_.csp", data);
 }
