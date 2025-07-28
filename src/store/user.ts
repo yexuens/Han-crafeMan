@@ -11,7 +11,6 @@ interface IUserInfo {
   integral: number;
   joinTime: string;
   openId: string;
-  phone: string;
   role: number;
   score: number;
   sex: number;
@@ -21,6 +20,11 @@ interface IUserInfo {
   updateTime: string;
   wxName: string;
   wxPhoto: string;
+  yuliuone: string;
+  district: string;
+  yuliutwo: string;
+  remark: number | null;
+  number: number | null;
 }
 
 interface IWxLoginResp {
@@ -37,6 +41,8 @@ const initUser: IUserInfo = {
   joinTime: "",
   openId: "",
   district: "",
+  yuliuone: "",
+  yuliutwo: "",
   role: -1,
   score: 0,
   sex: 0,
@@ -46,6 +52,8 @@ const initUser: IUserInfo = {
   updateTime: "",
   wxName: "",
   wxPhoto: "",
+  remark: null,
+  number: null,
 };
 
 export const useUserStore = defineStore(

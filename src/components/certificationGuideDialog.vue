@@ -1,59 +1,83 @@
 <script lang="ts" setup>
+// Define component options
 defineOptions({
   options: {
     virtualHost: true,
     addGlobalClass: true,
-    styleIsolation: 'shared',
+    styleIsolation: "shared",
   },
-})
-const visible = ref(true)
+});
 
+// 1. Define props to receive the visibility state from the parent.
+// 'modelValue' is the default prop for v-model.
+const props = defineProps<{
+  modelValue: boolean;
+}>();
+
+// 2. Define the event that will be emitted to update the parent's state.
+// 'update:modelValue' is the default event for v-model.
+const emit = defineEmits(["update:modelValue"]);
+
+// The beforeClose logic remains the same.
+// It's a function that returns a promise, which the popup will wait for.
 function beforeClose() {
-  return new Promise(resolve => setTimeout(resolve, 1500))
+  return new Promise((resolve) => setTimeout(resolve, 300)); // Reduced delay for smoother feel
 }
 
-const guideList = ref([{
-  content: '第一步 上传身份证',
-  status: 0,
-  unfinishedTip: '尚未完成上传',
-  url: '/pages',
-  btnLabel: '去上传',
-  bgColor: '#f0fbe9',
-}, {
-  content: '第二步 完成视频学习',
-  status: 1,
-  unfinishedTip: '尚未视频学习',
-  btnLabel: '去学习 ',
-
-  url: '/pages',
-  bgColor: '#e9fbfb',
-}, {
-  content: '第三步 完成考试题目',
-  status: 0,
-  unfinishedTip: '尚未完成考试',
-  btnLabel: '去考试',
-
-  url: '/pages',
-  bgColor: '#fbe9ef',
-}])
+// The guide list data remains the same.
+const guideList = ref([
+  {
+    content: "第一步 上传身份证",
+    status: 0,
+    unfinishedTip: "尚未完成上传",
+    btnLabel: "去上传",
+    bgColor: "#f0fbe9",
+  },
+  {
+    content: "第二步 完成视频学习",
+    status: 1,
+    unfinishedTip: "尚未视频学习",
+    btnLabel: "去学习 ",
+    bgColor: "#e9fbfb",
+  },
+  {
+    content: "第三步 完成考试题目",
+    status: 0,
+    unfinishedTip: "尚未完成考试",
+    btnLabel: "去考试",
+    bgColor: "#fbe9ef",
+  },
+]);
+function navigateToCertification() {
+  uni.navigateTo({
+    url: "/pages-sub/craft_man_certification/index",
+  });
+}
 </script>
 
 <template>
   <sar-popup
-    :visible="visible"
+    :visible="modelValue"
     effect="fade"
-    @overlay-click="beforeClose"
+    overlay-closable
+    :before-close="beforeClose"
+    @update:visible="emit('update:modelValue', $event)"
   >
-    <view class="guide-container h-420px w-320px flex flex-col px-32px pb-32px pt-50px">
-      <view class="flex flex-col items-center text-18px text-white" style="text-shadow: 0 4px 4px rgb(12,4,0,0.25)">
-        <view class="font-bold">
-          首次接单
-        </view>
+    <view
+      class="guide-container h-420px w-320px flex flex-col px-32px pb-32px pt-50px"
+    >
+      <view
+        class="flex flex-col items-center text-18px text-white"
+        style="text-shadow: 0 4px 4px rgb(12, 4, 0, 0.25)"
+      >
+        <view class="font-bold"> 首次接单 </view>
         <view>请先完成以下步骤</view>
       </view>
       <view class="mt-26px flex flex-1 grow-1 flex-col items-center gap-y-12px">
         <view
-          v-for="(item, index) in guideList" :key="index"
+          @click="navigateToCertification"
+          v-for="(item, index) in guideList"
+          :key="index"
           :style="`background: ${item.bgColor}`"
           class="w-full flex flex-1 items-center justify-between rounded-8px px-20px py-24px"
         >
@@ -65,7 +89,9 @@ const guideList = ref([{
               {{ item.unfinishedTip }}
             </view>
           </view>
-          <view class="go-to-btn flex items-center justify-center text-12px text-white">
+          <view
+            class="go-to-btn flex items-center justify-center text-12px text-white"
+          >
             {{ item.btnLabel }}
           </view>
         </view>

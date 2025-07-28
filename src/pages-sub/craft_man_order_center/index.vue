@@ -1,6 +1,8 @@
 <route lang="jsonc">
 {
   "layout": "default",
+  "needLogin": true,
+
   "style": {
     // 'custom' 表示开启自定义导航栏，默认 'default'
     "navigationStyle": "custom",
@@ -54,6 +56,7 @@ const pageParam = reactive({
   curPage: 1,
   number: 10,
 });
+const certDialogVisible = ref(false);
 const noticeList = ref([]);
 const navTransparent = useNavTransparent();
 const user = useUserStore();
@@ -114,8 +117,25 @@ async function handleCancelOrder(id: number) {
     },
   });
 }
-
+function beforeGrabAuth() {
+  switch (user.userInfo.integral) {
+    case 0:
+      certDialogVisible.value = true;
+      break;
+    case 1:
+      toast.info("认证信息待管理员审核");
+      break;
+    case 3:
+      toast.info("工匠认证不通过，请联系客服");
+      break;
+    default:
+      return;
+  }
+  throw new Error();
+}
 async function handleGrabOrder(id: number) {
+  beforeGrabAuth();
+
   try {
     await grabOrder({
       id,
@@ -192,6 +212,7 @@ onShow(() => {
 </script>
 
 <template>
+  <certification-guide-dialog v-model="certDialogVisible" />
   <nav-with-support
     :transparent="navTransparent.transparent.value"
     :with-service-icon="false"

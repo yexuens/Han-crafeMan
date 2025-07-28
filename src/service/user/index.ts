@@ -23,6 +23,10 @@ export interface IUpdateUserProfileReq {
   role?: number;
   city?: string;
   name?: string;
+  yuliuone?: string;
+  yuliutwo?: string;
+  number?: number;
+  remark?: number;
 }
 export async function getWxInfo(data: { openid: string }) {
   return await http.get("/oe_wxInfoIt_.csp", data);

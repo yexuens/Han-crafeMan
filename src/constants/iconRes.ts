@@ -43,5 +43,7 @@ export const iconRes = {
     "https://cdn.juesedao.cn/mdy/012d187064af446b82e9268ef66b5e14",
   redServiceIcon:
     "https://cdn.juesedao.cn/mdy/90d6fdc200dc41388f69a406e8be8518",
+  rightIcon: "https://cdn.juesedao.cn/mdy/885ba3f18f504e1a9d6bd43220de6ff9",
+  wrongIcon: "https://cdn.juesedao.cn/mdy/da0844637c5a4a99ad5804266865ce3e",
 };
 export type IconResKeyType = keyof typeof iconRes;

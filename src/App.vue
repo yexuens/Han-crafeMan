@@ -6,9 +6,7 @@ import { useUserStore } from "@/store";
 
 usePageAuth();
 const user = useUserStore();
-onLaunch(() => {
-  user.updateUser();
-});
+onLaunch(async () => {});
 onShow(() => {
   console.log("App Show");
 });

@@ -1,16 +1,17 @@
 import { env } from "@/constants";
 import { http } from "@/http/http";
 
-export function uploadImage(tempFilePath: string) {
+export function uploadImage(tempFilePath: string): Promise<string> {
   uni.showLoading({
     title: "上传中",
   });
   return new Promise((resolve, reject) => {
     uni.uploadFile({
       filePath: tempFilePath,
-      unit: "file",
+      name: "file",
       url: env.baseUrl + "/uploadCloud",
       success: (res) => {
+        console.log(res);
         if (res?.data) resolve(JSON.parse(res?.data as any)?.yunUrl);
       },
       fail: (err) => {

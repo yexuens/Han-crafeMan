@@ -88,6 +88,7 @@
           "path": "craft_man_certification/index",
           "type": "page",
           "layout": "customBar",
+          "needLogin": true,
           "style": {
             "navigationStyle": "custom",
             "disableScroll": true
@@ -97,6 +98,7 @@
           "path": "craft_man_order_center/index",
           "type": "page",
           "layout": "default",
+          "needLogin": true,
           "style": {
             "navigationStyle": "custom",
             "navigationBarTitleText": "首页"
