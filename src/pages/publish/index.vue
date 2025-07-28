@@ -180,7 +180,12 @@ function resetCustomUnit() {
     <view class="z-11 mt-68px rounded-t-17px bg-white px-16px pt-40px">
       <view class="flex items-center justify-between">
         <view class="text-18px font-600"> 需求填写</view>
-        <custom-icon :height="24" :width="28" icon-name="serviceIcon" />
+        <icon-button
+          open-type="contact"
+          :height="24"
+          :width="28"
+          icon-name="serviceIcon"
+        />
       </view>
       <view>
         <sar-form :model="form" label-width="160rpx" star-position="right">

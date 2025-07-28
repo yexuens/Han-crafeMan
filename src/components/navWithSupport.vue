@@ -47,7 +47,12 @@ function handleLeftOperation() {
         v-if="withServiceIcon"
         :style="`position:absolute;left:calc( 100vw - ${(menuBtnArea.width + 48) * 2}rpx )`"
       >
-        <custom-icon :height="25" :width="28" icon-name="serviceIcon" />
+        <icon-button
+          open-type="contact"
+          :height="25"
+          :width="28"
+          icon-name="serviceIcon"
+        />
       </view>
     </view>
   </view>
