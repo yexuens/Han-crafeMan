@@ -1,35 +1,9 @@
 <script lang="ts" setup>
 import dayjs from "dayjs";
 import { formatDurationSmart } from "@/utils/time";
+import { OrderStatus } from "@/enums";
 
-enum OrderStatus {
-  /**
-   * 填写需求
-   */
-  FillingRequirements = -1,
-  /**
-   * 已发布
-   */
-  Published = 0,
-  /**
-   * 已接单
-   */
-  Accepted = 1,
-  /**
-   * 群码上传
-   */
-  GroupCodeUploaded = 2,
-  /**
-   * 群内对接
-   */
-  GroupConnecting = 3,
-
-  WasCanceled = 4,
-
-  Completed = 5,
-}
-
-const orderStatusTipsMap: Record<OrderStatus, TipInfo> = {
+const orderRightTipsMap: Record<OrderStatus, TipInfo> = {
   [OrderStatus.FillingRequirements]: {
     bgColor: "#f8dc8e",
     text: "待接单",
@@ -121,7 +95,7 @@ function handleAddPrice() {
 }
 function navigateToDetail() {
   uni.navigateTo({
-    url: `/pages-sub/requirement_detail/index?id=${data.value?.id}`,
+    url: `/pages-sub/order_detail/index?id=${data.value?.id}`,
   });
 }
 </script>
@@ -136,12 +110,12 @@ function navigateToDetail() {
   >
     <view
       :style="{
-        backgroundColor: orderStatusTipsMap[status].bgColor,
-        color: orderStatusTipsMap[status].textColor,
+        backgroundColor: orderRightTipsMap[status].bgColor,
+        color: orderRightTipsMap[status].textColor,
       }"
       class="absolute right-36rpx top-0 flex items-center justify-center rounded-b-6px bg-primary-500 px-16px py-8px text-12px text-white shadow-md"
     >
-      {{ orderStatusTipsMap[status].text }}
+      {{ orderRightTipsMap[status].text }}
     </view>
     <view
       class="font-bold pb-12px border-b-solid border-b-gray-300 border-b-0.5px text-16px"

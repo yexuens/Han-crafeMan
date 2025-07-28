@@ -21,7 +21,7 @@ import { useNavTransparent } from "@/composables/useNavTransparent";
 import { cancelOrder, grabOrder } from "@/composables/useOrder";
 import { useCustomRefresher } from "@/composables/useCustomRefresher";
 import { toast } from "@/utils/toast";
-import { RequirementStatus } from "@/enums";
+import { OrderStatus } from "@/enums";
 import { useUserStore } from "@/store";
 
 const { screenHeight } = uni.getWindowInfo();
@@ -97,7 +97,7 @@ async function handleCancelOrder(id: number) {
         try {
           const { code } = await addOrEditRequirement({
             id: id,
-            jobState: RequirementStatus.WasCanceled.valueOf(),
+            jobState: OrderStatus.WasCanceled.valueOf(),
             ...(user.userInfo.role === 1 && { accesUserId: user.userInfo.id }),
             ...(user.userInfo.role === 0 && { userId: user.userInfo.id }),
           });

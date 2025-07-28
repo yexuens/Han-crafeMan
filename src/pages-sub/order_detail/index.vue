@@ -15,10 +15,10 @@ import {
   queryRequirementList,
 } from "@/service/requirement";
 import {
-  craftManRequirementStatusText,
-  jobStateNoticeInfo,
-  RequirementStatus,
-  RequirementStatusByUser,
+  craftManOrderStatusText,
+  orderStatusNoticeInfoMap,
+  OrderStatus,
+  OrderStatusByUser,
 } from "@/enums/requirement";
 import { isNotEmpty, navigateBack } from "@/utils";
 import { toast } from "@/utils/toast";
@@ -30,29 +30,29 @@ const id = ref();
 const specsEditDialogShow = ref(false);
 const user = useUserStore();
 
-const requirementStatusByUser = computed<RequirementStatusByUser>(() => {
+const requirementStatusByUser = computed<OrderStatusByUser>(() => {
   if (requirementDetail.value) {
     if (
-      jobState.value === RequirementStatus.WasCanceled ||
-      jobState.value === RequirementStatus.Completed
+      jobState.value === OrderStatus.WasCanceled ||
+      jobState.value === OrderStatus.Completed
     ) {
-      return RequirementStatusByUser["已完成/已取消"];
+      return OrderStatusByUser["已完成/已取消"];
     }
     if (userRole.value === 0) {
       // 用户提价
-      if (jobState.value === RequirementStatus.Published) {
-        return RequirementStatusByUser["用户已发单,工匠未接单"];
+      if (jobState.value === OrderStatus.Published) {
+        return OrderStatusByUser["用户已发单,工匠未接单"];
       }
     }
     if (userRole.value === 1) {
       // 工匠抢单
-      if (jobState.value === RequirementStatus.Published) {
-        return RequirementStatusByUser["工匠待抢单"];
+      if (jobState.value === OrderStatus.Published) {
+        return OrderStatusByUser["工匠待抢单"];
       }
     }
   }
   // 其余情况，统一取消订单，联系客服
-  return RequirementStatusByUser["取消接单"];
+  return OrderStatusByUser["取消接单"];
 });
 
 //  1. 工匠 0. 用户
@@ -84,7 +84,7 @@ async function handleCancel() {
         try {
           const { code } = await addOrEditRequirement({
             id: requirementDetail.value.id,
-            jobState: RequirementStatus.WasCanceled.valueOf(),
+            jobState: OrderStatus.WasCanceled.valueOf(),
             ...(userRole.value === 1 && { accesUserId: userId.value }),
             ...(userRole.value === 0 && { userId: userId.value }),
           });
@@ -143,7 +143,7 @@ function validateDetail() {
     if (userRole.value === 0 && requirementDetail.value.userId === userId.value)
       return;
     if (
-      requirementDetail.value.jobState === RequirementStatus.Published ||
+      requirementDetail.value.jobState === OrderStatus.Published ||
       (userRole.value === 1 &&
         requirementDetail.value.accesUserId === userId.value)
     )
@@ -200,13 +200,13 @@ onPullDownRefresh(async () => {
               {{ requirementDetail.address }}
             </view>
             <sar-tag
-              :color="craftManRequirementStatusText[jobState].bgColor"
+              :color="craftManOrderStatusText[jobState].bgColor"
               :size="'small'"
             >
               {{
                 userRole === 0
-                  ? craftManRequirementStatusText[jobState].user
-                  : craftManRequirementStatusText[jobState].crafeman
+                  ? craftManOrderStatusText[jobState].user
+                  : craftManOrderStatusText[jobState].crafeman
               }}
             </sar-tag>
           </view>
@@ -215,22 +215,22 @@ onPullDownRefresh(async () => {
           </view>
         </view>
         <view
-          v-if="jobStateNoticeInfo[jobState]"
+          v-if="orderStatusNoticeInfoMap[jobState]"
           :style="{
-            backgroundColor: jobStateNoticeInfo[jobState].bgColor,
-            color: jobStateNoticeInfo[jobState].textColor,
+            backgroundColor: orderStatusNoticeInfoMap[jobState].bgColor,
+            color: orderStatusNoticeInfoMap[jobState].textColor,
           }"
           class="w-full rounded-t-16px h-40px flex items-center px-5vw gap-x-6px"
         >
           <custom-icon
-            v-if="jobStateNoticeInfo[jobState].icon"
-            :icon-name="jobStateNoticeInfo[jobState].icon"
+            v-if="orderStatusNoticeInfoMap[jobState].icon"
+            :icon-name="orderStatusNoticeInfoMap[jobState].icon"
           />
           <text class="text-12px font-500"
             >{{
               userRole === 0
-                ? jobStateNoticeInfo[jobState].user
-                : jobStateNoticeInfo[jobState].crafeman
+                ? orderStatusNoticeInfoMap[jobState].user
+                : orderStatusNoticeInfoMap[jobState].crafeman
             }}
           </text>
         </view>
@@ -277,8 +277,8 @@ onPullDownRefresh(async () => {
           </view>
           <view
             v-if="
-              jobState !== RequirementStatus.Published &&
-              jobState === RequirementStatus.WasCanceled &&
+              jobState !== OrderStatus.Published &&
+              jobState === OrderStatus.WasCanceled &&
               requirementDetail.workmanName
             "
             class="flex justify-between w-full text-14px"
@@ -288,9 +288,9 @@ onPullDownRefresh(async () => {
           </view>
           <view
             v-if="
-              jobState === RequirementStatus.GroupCodeUploaded ||
-              jobState === RequirementStatus.GroupConnecting ||
-              jobState === RequirementStatus.Completed
+              jobState === OrderStatus.GroupCodeUploaded ||
+              jobState === OrderStatus.GroupConnecting ||
+              jobState === OrderStatus.Completed
             "
             class="flex justify-between w-full text-14px"
           >
@@ -301,15 +301,11 @@ onPullDownRefresh(async () => {
       </view>
 
       <view
-        v-if="
-          requirementStatusByUser !== RequirementStatusByUser['已完成/已取消']
-        "
+        v-if="requirementStatusByUser !== OrderStatusByUser['已完成/已取消']"
         class="fixed bottom-0 px-5vw pt-8px pb-24px border-t-solid border-t-gray-200 border-t-1px w-full h-81px flex items-center gap-x-16px"
       >
         <view
-          v-if="
-            requirementStatusByUser !== RequirementStatusByUser['工匠待抢单']
-          "
+          v-if="requirementStatusByUser !== OrderStatusByUser['工匠待抢单']"
           class="max-w-35% shrink-0 gap-x-8px h-full flex items-center justify-between"
         >
           <button
@@ -323,7 +319,7 @@ onPullDownRefresh(async () => {
           <button
             v-if="
               requirementStatusByUser ===
-              RequirementStatusByUser['用户已发单,工匠未接单']
+              OrderStatusByUser['用户已发单,工匠未接单']
             "
             class="flex items-center flex-col m-0 p-0"
             @click="handleCancel"
@@ -334,24 +330,20 @@ onPullDownRefresh(async () => {
         </view>
         <view class="w-full h-full">
           <sar-button
-            v-if="
-              requirementStatusByUser === RequirementStatusByUser['取消接单']
-            "
+            v-if="requirementStatusByUser === OrderStatusByUser['取消接单']"
             @click="handleCancel"
             >申请取消
           </sar-button>
           <sar-button
             v-if="
               requirementStatusByUser ===
-              RequirementStatusByUser['用户已发单,工匠未接单']
+              OrderStatusByUser['用户已发单,工匠未接单']
             "
             @click="openEditPriceDialog"
             >马上提价
           </sar-button>
           <sar-button
-            v-if="
-              requirementStatusByUser === RequirementStatusByUser['工匠待抢单']
-            "
+            v-if="requirementStatusByUser === OrderStatusByUser['工匠待抢单']"
             @click="handleGrabOrder"
             >立即抢单
           </sar-button>

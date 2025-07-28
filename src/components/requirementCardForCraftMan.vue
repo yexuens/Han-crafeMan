@@ -1,36 +1,9 @@
 <script lang="ts" setup>
 import dayjs from "dayjs";
 import { formatDurationSmart } from "@/utils/time";
-import { RequirementStatus } from "@/enums";
+import { OrderStatus } from "@/enums";
 
-enum OrderStatus {
-  /**
-   * 填写需求
-   */
-  FillingRequirements = -1,
-  /**
-   * 已发布
-   */
-  Published = 0,
-  /**
-   * 已接单
-   */
-  Accepted = 1,
-  /**
-   * 群码上传
-   */
-  GroupCodeUploaded = 2,
-  /**
-   * 群内对接
-   */
-  GroupConnecting = 3,
-
-  WasCanceled = 4,
-
-  Completed = 5,
-}
-
-const orderStatusTipsMap = {
+const orderRightLabelMap = {
   [OrderStatus.Published]: {
     text: "待抢单",
     customClass: "text-[#F6631B]",
@@ -191,14 +164,14 @@ const data = computed(() => {
 });
 const hasQrCode = computed(
   () =>
-    data.value?.jobState === RequirementStatus.GroupCodeUploaded ||
-    data.value?.jobState === RequirementStatus.GroupConnecting,
+    data.value?.jobState === OrderStatus.GroupCodeUploaded ||
+    OrderStatus.GroupConnecting,
 );
 
 function navigateToDetail() {
   console.log("detail");
   uni.navigateTo({
-    url: `/pages-sub/requirement_detail/index?id=${data.value?.id}`,
+    url: `/pages-sub/order_detail/index?id=${data.value?.id}`,
   });
 }
 </script>
@@ -210,10 +183,10 @@ function navigateToDetail() {
         {{ data.orderNo }}
       </view>
       <view
-        :class="orderStatusTipsMap[status].customClass"
+        :class="orderRightLabelMap[status].customClass"
         class="text-14px px-16px"
       >
-        {{ orderStatusTipsMap[status].text }}
+        {{ orderRightLabelMap[status].text }}
       </view>
     </view>
     <view :class="[hasQrCode ? ' pb-16px bb' : '']" class="px-16px">
@@ -271,13 +244,13 @@ function navigateToDetail() {
     </view>
     <view class="flex px-16px flex-row-reverse mt-28px gap-x-12px">
       <button
-        @click="item?.onClick"
-        :open-type="item?.openType"
         v-for="item in bottomBtnGroupByStatus"
         :key="item.label"
         :class="[item?.customClass]"
+        :open-type="item?.openType"
         :style="item.rootStyle"
         class="min-w-88px p-0 m-0 center gap-x-8px h-32px rounded-8px text-12px"
+        @click="item?.onClick"
       >
         <custom-icon v-if="item.icon" :icon-name="item.icon" />
         {{ item.label }}

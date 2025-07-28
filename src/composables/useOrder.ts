@@ -1,5 +1,5 @@
 import { addOrEditRequirement } from "@/service/requirement";
-import { RequirementStatus } from "@/enums";
+import { OrderStatus } from "@/enums";
 import { toast } from "@/utils/toast";
 
 export async function cancelOrder({
@@ -24,7 +24,7 @@ export async function grabOrder({
   if (userRole !== 1) throw new Error("你不是工匠，不能抢单");
   const { code } = await addOrEditRequirement({
     id,
-    jobState: RequirementStatus.Accepted,
+    jobState: OrderStatus.Accepted,
     accesUserId: userId,
   });
 }

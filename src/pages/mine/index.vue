@@ -47,7 +47,7 @@ const featureList = [
 ];
 function navigateToAllRequirement() {
   uni.navigateTo({
-    url: "/pages-sub/user_requirement_list/index",
+    url: "/pages-sub/user_orders/index",
   });
 }
 async function fetchData() {
