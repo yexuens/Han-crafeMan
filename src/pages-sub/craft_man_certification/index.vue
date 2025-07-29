@@ -23,7 +23,7 @@ import { areArraysEqual } from "@/utils/array";
 const { screenHeight } = uni.getWindowInfo();
 
 const user = useUserStore();
-const step = ref(3);
+const step = ref(1);
 const examList = ref([]);
 const examResultList = ref<IExamResult[]>([]);
 const videoUrl = ref("");
@@ -251,14 +251,14 @@ async function resetExam() {
   }
 }
 async function fetchVideoUrl() {
-  const { data } = await getBanner(BannerModule.video);
-  if (isNotEmpty(data)) videoUrl.value = data[0].url;
+  const { records } = await getBanner(BannerModule.video);
+  if (isNotEmpty(records)) videoUrl.value = records[0].url;
 }
 onLoad(async () => {
   await user.updateUser();
   form.yuliuone = user.userInfo.yuliuone;
   form.yuliutwo = user.userInfo.yuliutwo;
-  getStepByUser();
+  // getStepByUser();
   fetchExamAndInitResult();
   fetchVideoUrl();
 });

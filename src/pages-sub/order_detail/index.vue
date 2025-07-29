@@ -20,7 +20,7 @@ import {
   OrderStatus,
   OrderStatusByUser,
 } from "@/enums/requirement";
-import { isNotEmpty, navigateBack } from "@/utils";
+import { isNotEmpty, navigateBack, previewImg } from "@/utils";
 import { toast } from "@/utils/toast";
 import { useUserStore } from "@/store";
 
@@ -140,8 +140,7 @@ function openEditPriceDialog() {
 
 function validateDetail() {
   if (requirementDetail.value) {
-    if (userRole.value === 0 && requirementDetail.value.userId === userId.value)
-      return;
+    if (requirementDetail.value.userId === userId.value) return;
     if (
       requirementDetail.value.jobState === OrderStatus.Published ||
       (userRole.value === 1 &&
@@ -295,7 +294,14 @@ onPullDownRefresh(async () => {
             class="flex justify-between w-full text-14px"
           >
             <view class="text-#060606 opacity-60 shrink-0 pr-48px">项目群</view>
-            <view>{{ requirementDetail.qrCode }}</view>
+            <view>
+              <image
+                @click="previewImg(requirementDetail.qrCode)"
+                mode="widthFix"
+                :src="requirementDetail.qrCode"
+                class="w-120px w-120px"
+              />
+            </view>
           </view>
         </view>
       </view>

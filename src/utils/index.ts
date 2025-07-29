@@ -219,3 +219,8 @@ export function parseDeepJSON(data: any) {
   }
   return result;
 }
+export function previewImg(url: string) {
+  uni.previewImage({
+    urls: [url],
+  });
+}

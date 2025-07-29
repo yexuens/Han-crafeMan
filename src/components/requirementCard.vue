@@ -2,6 +2,7 @@
 import dayjs from "dayjs";
 import { formatDurationSmart } from "@/utils/time";
 import { OrderStatus } from "@/enums";
+import { previewImg } from "@/utils";
 
 const orderRightTipsMap: Record<OrderStatus, TipInfo> = {
   [OrderStatus.FillingRequirements]: {
@@ -26,7 +27,7 @@ const orderRightTipsMap: Record<OrderStatus, TipInfo> = {
   },
   [OrderStatus.GroupConnecting]: {
     bgColor: "#10ad80",
-    text: "已完成",
+    text: "群内对接",
     textColor: "#ffffff",
   },
   [OrderStatus.WasCanceled]: {
@@ -159,7 +160,11 @@ function navigateToDetail() {
       </view>
     </view>
     <view
-      v-if="!(status === OrderStatus.WasCanceled)"
+      v-if="
+        !(
+          status === OrderStatus.WasCanceled || status === OrderStatus.Completed
+        )
+      "
       class="grid grid-cols-5 mt-40px justify-items-center"
     >
       <view
@@ -189,16 +194,17 @@ function navigateToDetail() {
         </view>
       </view>
     </view>
-    <view class="mt16px">
+    <view class="mt16px" @click.stop>
       <view
         v-if="OrderStatus.GroupCodeUploaded === status"
-        class="h-40px w-full flex items-center justify-between"
+        class="h-48px w-full flex items-center justify-between"
       >
         <view class="text-12px"> 请扫码进入项目群...</view>
         <image
-          class="h-40px w-40px"
+          @click="previewImg(data.qrCode)"
+          class="h-48px w-48px"
           mode="aspectFill"
-          src="https://cdn.juesedao.cn/mdy/2293a4a5523843dba5129f2233f163a7"
+          :src="data.qrCode"
         />
       </view>
     </view>

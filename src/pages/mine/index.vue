@@ -27,7 +27,7 @@ const navTransparent = useNavTransparent();
 const latestRequirement = ref();
 const { style } = useSafeAreaStyle();
 const screenHeight = uni.getSystemInfoSync().windowHeight;
-
+const noticeData = ref("");
 const featureList = [
   {
     label: "我的资料",
@@ -66,13 +66,15 @@ function navigateToLogin() {
   });
 }
 async function fetchNotice() {
-  const data = await queryRequirementNotice({
+  const { data } = await queryRequirementNotice({
     type: 0,
     ...{
-      userId: user.userInfo.role === 0 ? user.userInfo.id : null,
-      accesUserId: user.userInfo.role === 1 ? user.userInfo.id : null,
+      userId: user.userInfo.id || null,
     },
   });
+  if (isNotEmpty(data)) {
+    noticeData.value = data[0];
+  }
 }
 function navigateToEditProfile() {
   uni.navigateTo({
@@ -182,12 +184,12 @@ onPullDownRefresh(async () => {
         </view>
       </view>
       <view
-        v-if="user.isLogin"
+        v-if="user.isLogin && noticeData"
         class="absolute z-9 h-60px w-screen rounded-t-16px bg-#FFE2D4 px-24px py-8px text-12px text-primary-500 -translate-y-35px"
       >
         <view class="flex items-center gap-x-8px">
           <custom-icon :size="20" icon-name="noticeIcon" />
-          <text>这是一条公告！</text>
+          <text>{{ noticeData }}</text>
         </view>
       </view>
     </view>
