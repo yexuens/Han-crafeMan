@@ -20,7 +20,6 @@ import {
 } from "@/service/requirement";
 import { isNotEmpty } from "@/utils";
 import { useNavTransparent } from "@/composables/useNavTransparent";
-import { cancelOrder, grabOrder } from "@/composables/useOrder";
 import { useCustomRefresher } from "@/composables/useCustomRefresher";
 import { toast } from "@/utils/toast";
 import { OrderStatus } from "@/enums";
@@ -117,6 +116,7 @@ async function handleCancelOrder(id: number) {
     },
   });
 }
+
 function beforeGrabAuth() {
   switch (user.userInfo.integral) {
     case 0:
@@ -133,16 +133,18 @@ function beforeGrabAuth() {
   }
   throw new Error();
 }
+
 async function handleGrabOrder(id: number) {
   beforeGrabAuth();
 
   try {
-    await grabOrder({
+    if (user.userInfo.role !== 1) throw new Error("你不是工匠，不能抢单");
+    const { code } = await addOrEditRequirement({
       id,
-      userId: user.userInfo.id,
-      userRole: 1,
+      jobState: OrderStatus.Accepted,
+      accesUserId: user.userInfo.id,
     });
-    toast.info("抢单成功");
+    if (code) toast.info("抢单成功");
   } catch (e) {
     toast.error("抢单失败");
   } finally {
@@ -175,6 +177,7 @@ async function fetchData({
   });
   pageParam.curPage += 1;
 }
+
 async function fetchRequirementCount() {
   const data: any = await queryRequirementCount({
     accesUserId: user.userInfo.id,
@@ -184,6 +187,7 @@ async function fetchRequirementCount() {
     tabMenuBtnList.value[1].count = data.Num2;
   }
 }
+
 async function handleRefresh() {
   refresher.onRefresh(() =>
     fetchData({
@@ -191,6 +195,7 @@ async function handleRefresh() {
     }),
   );
 }
+
 function changeStatus(status: string) {
   if (status === form.activeStatus) return;
   form.activeStatus = status;
@@ -275,16 +280,16 @@ onShow(() => {
                   : 'bg-primary-500 text-white',
               ]"
               class="w-16px h-16px rounded-full center p-8px text-10px ml-4px"
-              >{{ item.count }}</view
-            >
+              >{{ item.count }}
+            </view>
           </sar-button>
         </view>
         <scroll-view
-          @refresherrefresh="handleRefresh"
-          :refresher-triggered="refresher.isRefreshing.value"
           :refresher-enabled="refresher.enableRefresh.value"
-          scroll-y
+          :refresher-triggered="refresher.isRefreshing.value"
           :throttle="false"
+          scroll-y
+          @refresherrefresh="handleRefresh"
         >
           <view class="mt-28px flex flex-col gap-y-16px pb-24px">
             <requirement-card-for-craft-man
@@ -295,9 +300,9 @@ onShow(() => {
               @grab="handleGrabOrder"
             />
             <sar-empty
-              root-class="!my-1/2"
               v-if="!isNotEmpty(requirementList)"
               description="暂无工单"
+              root-class="!my-1/2"
             />
           </view>
         </scroll-view>
