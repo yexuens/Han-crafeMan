@@ -28,6 +28,10 @@ export function queryCraftManCount() {
     flag: "workman",
   });
 }
-export async function getBanner(module: number) {
+export enum BannerModule {
+  video = 1,
+  contract = 2,
+}
+export async function getBanner(module: BannerModule) {
   return await http.get<any[]>("/oe_getBannerImages_.csp", { module: module });
 }

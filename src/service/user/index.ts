@@ -19,7 +19,7 @@ export interface IUpdateUserProfileReq {
   wxPhoto?: string;
   userId: string | number;
   district?: string | number;
-  integral?: 1 | 0;
+  integral?: 1 | 0 | 2;
   role?: number;
   city?: string;
   name?: string;

@@ -13,7 +13,7 @@
 
 <script lang="ts" setup>
 import { useUserStore } from "@/store";
-import { uploadImage } from "@/service/system";
+import { BannerModule, getBanner, uploadImage } from "@/service/system";
 import { updateUserProfile } from "@/service/user";
 import { queryCraftsAuthInfo } from "@/service/crafts";
 import { isNotEmpty } from "@/utils";
@@ -26,7 +26,7 @@ const user = useUserStore();
 const step = ref(3);
 const examList = ref([]);
 const examResultList = ref<IExamResult[]>([]);
-
+const videoUrl = ref("");
 const form = reactive({
   yuliuone: "", //身份证照片人像面
   yuliutwo: "", //身份证照片国徽面
@@ -100,13 +100,17 @@ const submitFunc = {
       userId: user.userInfo.id,
       number: 1,
     });
-    if (code === 1) step.value += 1;
+    if (code === 1) {
+      step.value += 1;
+      if (!videoUrl.value) step.value += 1;
+    }
   },
   async handleExamSubmit() {
     const { code } = await updateUserProfile({
       userId: user.userInfo.id,
       remark: 1,
       delFlag: `${rightExamItemCount.value}/${examList.value.length}`,
+      integral: 1,
     });
     if (code === 1) {
       step.value += 1;
@@ -246,13 +250,17 @@ async function resetExam() {
     currentExamItemIndex.value = 0;
   }
 }
-
+async function fetchVideoUrl() {
+  const { data } = await getBanner(BannerModule.video);
+  if (isNotEmpty(data)) videoUrl.value = data[0].url;
+}
 onLoad(async () => {
   await user.updateUser();
   form.yuliuone = user.userInfo.yuliuone;
   form.yuliutwo = user.userInfo.yuliutwo;
   getStepByUser();
-  await fetchExamAndInitResult();
+  fetchExamAndInitResult();
+  fetchVideoUrl();
 });
 </script>
 
@@ -306,7 +314,7 @@ onLoad(async () => {
                 <video
                   class="h-full w-full"
                   mode="aspectFill"
-                  src="https://cdn.juesedao.cn/mdy/827246545e4e4be5a6f0733987942813"
+                  :src="videoUrl"
                   @timeupdate="handleVideoProgressUpdate"
                 />
               </view>
@@ -335,7 +343,7 @@ onLoad(async () => {
               :correct-answer="item.correctAnswer"
               :multi-confirm="examResultList[index].multiConfirm"
               :options="
-                item.options.map((_item) => ({
+                item.options?.map((_item) => ({
                   label: _item,
                   value: _item[0],
                 }))
@@ -358,7 +366,11 @@ onLoad(async () => {
             >
               <view class="font-bold">考试结果</view>
               <sar-progress-circle
-                :percent="(rightExamItemCount / examList.length) * 100"
+                :percent="
+                  examList.length > 0
+                    ? (rightExamItemCount / examList.length) * 100
+                    : 0
+                "
               />
               <view class="text-14px text-gray-6 font-bold">
                 答题情况
