@@ -28,3 +28,6 @@ export function queryCraftManCount() {
     flag: "workman",
   });
 }
+export async function getBanner(module: number) {
+  return await http.get<any[]>("/oe_getBannerImages_.csp", { module: module });
+}

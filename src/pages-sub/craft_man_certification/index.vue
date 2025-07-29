@@ -7,7 +7,6 @@
   "style": {
     // 'custom' 表示开启自定义导航栏，默认 'default'
     "navigationStyle": "custom",
-    "disableScroll": true,
   },
 }
 </route>
@@ -18,59 +17,47 @@ import { uploadImage } from "@/service/system";
 import { updateUserProfile } from "@/service/user";
 import { queryCraftsAuthInfo } from "@/service/crafts";
 import { isNotEmpty } from "@/utils";
-
-interface IExamResult {
-  questionType: 1 | 2;
-  answer: string | string[];
-  correctAnswer: string | string[];
-  multiConfirm?: boolean;
-}
+import { getExamResultInit, IExamResult, stepList } from "./index";
+import { areArraysEqual } from "@/utils/array";
 
 const { screenHeight } = uni.getWindowInfo();
 
 const user = useUserStore();
-const step = ref(4);
-const stepList = ref([
-  {
-    label: "第一步 请上传或拍摄身份证",
-  },
-
-  {
-    label: "第二步 完成视频学习",
-  },
-
-  {
-    label: "第三步 工匠考试",
-  },
-  {
-    label: "第四步 确认考试",
-  },
-]);
-const isFinishedLearn = ref(false);
+const step = ref(3);
 const examList = ref([]);
-
 const examResultList = ref<IExamResult[]>([]);
+
 const form = reactive({
   yuliuone: "", //身份证照片人像面
   yuliutwo: "", //身份证照片国徽面
   progress: 0,
 });
-const currentExamIndex = ref(0);
-const isFinishedStep = computed(() => step.value >= stepList.value.length);
-watchEffect(() => {
-  console.log(examResultList.value);
-});
+const currentExamItemIndex = ref(0);
+const isFinishedLearn = computed(() => form.progress >= 100);
+
+const rightExamItemCount = computed(
+  () =>
+    examResultList.value?.filter((item) =>
+      item.questionType === 2
+        ? areArraysEqual(
+            item.answer as string[],
+            item.correctAnswer as string[],
+          )
+        : item.answer === item.correctAnswer,
+    ).length,
+);
 const nextStepBtnDisabled = computed(() => {
   switch (step.value) {
     case 1:
-      return !form.yuliuone && !form.yuliutwo;
+      return !form.yuliuone || !form.yuliutwo;
     case 2:
       return !isFinishedLearn.value;
     case 3:
-      const result = examResultList.value[currentExamIndex.value];
-      return !(result?.questionType === 1
-        ? result?.answer
-        : isNotEmpty(result?.answer));
+      const result = examResultList.value[currentExamItemIndex.value];
+      return (
+        result &&
+        !(result.questionType === 1 ? result.answer : isNotEmpty(result.answer))
+      );
     default:
       return false;
   }
@@ -80,17 +67,52 @@ const nextStepBtnLabel = computed(() => {
     case 2:
       return isFinishedLearn.value ? "下一步" : "请先完成视频学习";
     case 3:
-      const item = examResultList.value[currentExamIndex.value];
-      if (item?.questionType === 2 && !item?.multiConfirm) {
+      const item = examResultList.value[currentExamItemIndex.value];
+      if (item && item.questionType === 2 && !item.multiConfirm) {
         return "确认多选题答案";
       }
-      return currentExamIndex.value < examResultList.value.length - 1
+      return currentExamItemIndex.value < examResultList.value.length - 1
         ? "下一题"
-        : "完成考试";
+        : "查看结果";
+    case 4:
+      return "确认提交";
+    case 5:
+      return "返回主页";
     default:
       return "下一步";
   }
 });
+const submitFunc = {
+  async handleIdCardSubmit() {
+    const { code } = await updateUserProfile({
+      userId: user.userInfo.id,
+      yuliuone: form.yuliuone,
+      yuliutwo: form.yuliutwo,
+    });
+    if (code === 1) step.value += 1;
+  },
+  async handleCompleteVideoSubmit() {
+    if (user.userInfo.number === 1) {
+      step.value += 1;
+      return;
+    }
+    const { code } = await updateUserProfile({
+      userId: user.userInfo.id,
+      number: 1,
+    });
+    if (code === 1) step.value += 1;
+  },
+  async handleExamSubmit() {
+    const { code } = await updateUserProfile({
+      userId: user.userInfo.id,
+      remark: 1,
+      delFlag: `${rightExamItemCount.value}/${examList.value.length}`,
+    });
+    if (code === 1) {
+      step.value += 1;
+    }
+  },
+};
 
 async function fetchExamAndInitResult() {
   const { data } = await queryCraftsAuthInfo({
@@ -98,15 +120,7 @@ async function fetchExamAndInitResult() {
   });
   if (isNotEmpty(data)) {
     examList.value.push(...(data as any[]));
-    examResultList.value = examList.value.map((item) => ({
-      questionType: item.questionType,
-      answer: item.questionType === 1 ? "" : [],
-      correctAnswer:
-        item.questionType === 2
-          ? item.correctAnswer.split(",")
-          : item.correctAnswer,
-      ...{ multiConfirm: item.questionType === 2 ? false : undefined },
-    }));
+    examResultList.value = getExamResultInit(data);
   }
 }
 
@@ -123,8 +137,6 @@ function getStepByUser() {
   }
 }
 
-async function directUploadIdCardPics(type: "yuliuone" | "yuliutwo") {}
-
 async function handleUploadIdCardPics(type: "yuliuone" | "yuliutwo") {
   const chooseAndUpload = () =>
     new Promise((resolve, reject) => {
@@ -137,94 +149,56 @@ async function handleUploadIdCardPics(type: "yuliuone" | "yuliutwo") {
       });
     });
   if (form[type]) {
-    uni.showModal({
+    const { confirm } = await uni.showModal({
       title: "是否需要重新上传身份证?",
-      async success(res) {
-        if (res.confirm) {
-          await chooseAndUpload();
-        }
-      },
     });
-    return;
+    if (confirm) await chooseAndUpload();
   } else {
-    uni.showLoading();
-    try {
-      await chooseAndUpload();
-    } finally {
-      uni.hideLoading();
-    }
+    await chooseAndUpload();
   }
 }
 
-async function handleIdCardSubmit() {
-  const { code } = await updateUserProfile({
-    userId: user.userInfo.id,
-    yuliuone: form.yuliuone,
-    yuliutwo: form.yuliutwo,
-  });
-  if (code === 1) step.value += 1;
-}
-
-async function handleCompleteVideoSubmit() {
-  if (user.userInfo.number === 1) {
-    step.value += 1;
+async function handleNextQuestionOrFinished() {
+  const current = examResultList.value[currentExamItemIndex.value];
+  if (!current.multiConfirm && current.questionType === 2) {
+    const { confirm } = await uni.showModal({
+      title: "请确认您的答案",
+    });
+    if (confirm) current.multiConfirm = true;
     return;
   }
-  const { code } = await updateUserProfile({
-    userId: user.userInfo.id,
-    number: 1,
-  });
-  if (code === 1) step.value += 1;
-}
-
-async function handleExamSubmit() {
-  const rightAnswerCount = examResultList.value.filter((item) =>
-    item.questionType === 2
-      ? areArraysEqual(item.answer as string[], item.correctAnswer as string[])
-      : item.answer === item.correctAnswer,
-  ).length;
-  const { code } = await updateUserProfile({
-    userId: user.userInfo.id,
-    remark: 1,
-  });
+  if (currentExamItemIndex.value < examResultList.value.length - 1) {
+    currentExamItemIndex.value += 1;
+  } else {
+    step.value += 1;
+  }
 }
 
 function handleNextStep() {
   switch (step.value) {
     case 1:
-      handleIdCardSubmit();
+      submitFunc.handleIdCardSubmit();
       break;
     case 2:
-      handleCompleteVideoSubmit();
+      submitFunc.handleCompleteVideoSubmit();
       break;
     case 3:
-      const current = examResultList.value[currentExamIndex.value];
-      if (!current.multiConfirm && current.questionType === 2) {
-        uni.showModal({
-          title: "请确认您的答案",
-          success(res) {
-            if (res.confirm) {
-              current.multiConfirm = true;
-            }
-          },
-        });
-        return;
-      }
-      if (currentExamIndex.value < examResultList.value.length - 1) {
-        handleNextQuestion();
-      } else {
-        step.value += 1;
-      }
+      handleNextQuestionOrFinished();
       break;
     case 4:
-      handleExamSubmit();
+      submitFunc.handleExamSubmit();
+      break;
+    case 5:
+      uni.reLaunch({
+        url: "/pages/index/index",
+      });
       break;
     default:
       break;
   }
 }
 
-function handleUpdateProgress(e) {
+function handleVideoProgressUpdate(e) {
   const { currentTime, duration } = e.detail;
   if (!duration || duration <= 0) {
     form.progress = 0; // 如果时长无效，进度设为0
@@ -232,25 +206,9 @@ function handleUpdateProgress(e) {
   }
   const progressPercentage = (currentTime / duration) * 100;
   form.progress = Math.round(progressPercentage); // 四舍五入为整数
-  if (form.progress >= 100) {
-    isFinishedLearn.value = true;
-  }
 }
 
-onLoad(async () => {
-  await user.updateUser();
-  form.yuliuone = user.userInfo.yuliuone;
-  form.yuliutwo = user.userInfo.yuliutwo;
-  isFinishedLearn.value = user.userInfo.number === 1;
-  getStepByUser();
-  await fetchExamAndInitResult();
-});
-
-function handleNextQuestion() {
-  currentExamIndex.value += 1;
-}
-
-function handleItemPickedAnswer({
+function handleItemPicked({
   answer,
   questionType,
   index,
@@ -276,34 +234,26 @@ function handleItemPickedAnswer({
     answerList.sort((a, b) => a.localeCompare(b));
   }
 }
-function resetExamAnswer() {
-  uni.showModal({
+
+async function resetExam() {
+  const { confirm } = await uni.showModal({
     title: "提示",
     content: "您确定重新答题吗？",
-    success(res) {
-      if (res.confirm) {
-        examResultList.value = examList.value.map((item) => ({
-          questionType: item.questionType,
-          answer: item.questionType === 1 ? "" : [],
-          correctAnswer: item.correctAnswer,
-          ...{ multiConfirm: item.questionType === 2 ? false : undefined },
-        }));
-        step.value = 3;
-        currentExamIndex.value = 0;
-      }
-    },
   });
-}
-function areArraysEqual<T>(arrA: T[], arrB: T[]): boolean {
-  // 1. 如果长度不同，肯定不相等
-  if (arrA.length !== arrB.length) {
-    return false;
+  if (confirm) {
+    examResultList.value = getExamResultInit(examList.value);
+    step.value = 3;
+    currentExamItemIndex.value = 0;
   }
-
-  // 2. 逐个比较每个元素
-  // .every() 方法会测试数组的所有元素是否都通过了指定函数的测试
-  return arrA.every((value, index) => value === arrB[index]);
 }
+
+onLoad(async () => {
+  await user.updateUser();
+  form.yuliuone = user.userInfo.yuliuone;
+  form.yuliutwo = user.userInfo.yuliutwo;
+  getStepByUser();
+  await fetchExamAndInitResult();
+});
 </script>
 
 <template>
@@ -357,7 +307,7 @@ function areArraysEqual<T>(arrA: T[], arrB: T[]): boolean {
                   class="h-full w-full"
                   mode="aspectFill"
                   src="https://cdn.juesedao.cn/mdy/827246545e4e4be5a6f0733987942813"
-                  @timeupdate="handleUpdateProgress"
+                  @timeupdate="handleVideoProgressUpdate"
                 />
               </view>
               <view class="primary-text">
@@ -368,29 +318,33 @@ function areArraysEqual<T>(arrA: T[], arrB: T[]): boolean {
             </view>
           </template>
 
-          <template v-if="step === 3">
+          <template
+            v-if="
+              step === 3 && isNotEmpty(examResultList) && isNotEmpty(examList)
+            "
+          >
             <view class="mb-12px font-bold">
-              {{ currentExamIndex + 1 }}/{{ examList?.length }}题
+              {{ currentExamItemIndex + 1 }}/{{ examList.length }}题
             </view>
             <exam-item
               v-for="(item, index) in examList"
-              v-show="currentExamIndex === index"
+              v-show="currentExamItemIndex === index"
               :key="index"
-              :multi-confirm="examResultList[index].multiConfirm"
+              :answer="examResultList[index].answer"
               :answer-analysis="item.answerAnalysis"
               :correct-answer="item.correctAnswer"
-              :model-value="examResultList[index].answer"
+              :multi-confirm="examResultList[index].multiConfirm"
               :options="
-                item.options?.map((_item) => ({
+                item.options.map((_item) => ({
                   label: _item,
                   value: _item[0],
                 }))
               "
               :question-content="item.questionContent"
               :question-type="item.questionType"
-              @update:modelValue="
+              @update:answer="
                 ({ answer, questionType }) =>
-                  handleItemPickedAnswer({
+                  handleItemPicked({
                     answer,
                     questionType,
                     index,
@@ -404,35 +358,22 @@ function areArraysEqual<T>(arrA: T[], arrB: T[]): boolean {
             >
               <view class="font-bold">考试结果</view>
               <sar-progress-circle
-                :percent="
-                  (examResultList.filter((item) =>
-                    item.questionType === 2
-                      ? areArraysEqual(
-                          item.answer as string[],
-                          item.correctAnswer as string[],
-                        )
-                      : item.answer === item.correctAnswer,
-                  ).length /
-                    examList.length) *
-                  100
-                "
+                :percent="(rightExamItemCount / examList.length) * 100"
               />
               <view class="text-14px text-gray-6 font-bold">
                 答题情况
-                {{
-                  examResultList.filter((item) =>
-                    item.questionType === 2
-                      ? areArraysEqual(
-                          item.answer as string[],
-                          item.correctAnswer as string[],
-                        )
-                      : item.answer === item.correctAnswer,
-                  ).length
-                }}/{{ examList.length }}
+                {{ rightExamItemCount }}/{{ examList.length }}
               </view>
-              <sar-button block @click="resetExamAnswer" theme="info"
-                >重新答题</sar-button
-              >
+              <sar-button block theme="info" @click="resetExam"
+                >重新答题
+              </sar-button>
+            </view>
+          </template>
+          <template v-if="step === 5">
+            <view
+              class="flex items-center justify-center flex-col gap-y-18px px-8px py-36px bg-white rounded-8px"
+            >
+              等待管理员审核
             </view>
           </template>
           <sar-button

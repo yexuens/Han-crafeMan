@@ -7,17 +7,17 @@ interface IExamItemOption {
 }
 
 interface IProps {
-  questionContent: any;
+  questionContent: string;
   options: IExamItemOption[];
   correctAnswer: string;
   answerAnalysis?: string;
   questionType: 1 | 2;
-  modelValue: string | string[];
+  answer: string | string[];
   multiConfirm?: boolean;
 }
 
 const props = defineProps<IProps>();
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:answer"]);
 const questionTypeSchema = {
   1: {
     label: "单选题",
@@ -37,13 +37,13 @@ function chosenAnswer({
   questionType: 1 | 2;
 }) {
   if (questionType === 1) {
-    if (!props.modelValue) {
+    if (!props.answer) {
       uni.showModal({
         title: "提示",
         content: `您确定选择选项 ${answer} 吗？`,
         success: (res) => {
           if (res.confirm) {
-            emit("update:modelValue", {
+            emit("update:answer", {
               answer,
               questionType,
             });
@@ -55,7 +55,7 @@ function chosenAnswer({
     }
   } else {
     if (!props.multiConfirm) {
-      emit("update:modelValue", {
+      emit("update:answer", {
         answer,
         questionType,
       });
@@ -63,6 +63,38 @@ function chosenAnswer({
       toast.info("您已选择了答案，不可重新选择！");
     }
   }
+}
+const isSelected = (itemValue: string) => {
+  if (props.questionType === 1) {
+    return props.answer === itemValue;
+  }
+  // questionType === 2
+  return (props.answer as string[])?.includes(itemValue);
+};
+
+const isCorrectAnswer = (itemValue: string) => {
+  if (typeof props.correctAnswer === "string") {
+    return props.correctAnswer?.includes(itemValue);
+  }
+  return false;
+};
+function getOptionClass(item: IExamItemOption) {
+  const selected = isSelected(item.value);
+  const correct = isCorrectAnswer(item.value);
+
+  // 答题后（单选有值，或多选已确认）
+  const isAnswered =
+    props.questionType === 1 ? !!props.answer : props.multiConfirm;
+
+  if (isAnswered) {
+    if (selected && correct) return "right_answer";
+    if (selected && !correct) return "wrong_answer";
+    if (!selected && correct) return "right_answer"; // 也可高亮正确答案
+  } else if (props.questionType === 2 && selected) {
+    // 多选未确认时，只高亮已选
+    return "picked_answer";
+  }
+  return "";
 }
 </script>
 
@@ -84,27 +116,7 @@ function chosenAnswer({
         :key="index"
         :class="[
           'px-16px text-14px opacity-90 py-12px bg-#f9f9f9 flex rounded-4px items-center justify-between',
-          ...(questionType === 1 && [
-            modelValue === item.value && modelValue !== correctAnswer
-              ? 'wrong_answer'
-              : '',
-            modelValue && item.value === correctAnswer ? 'right_answer' : '',
-          ]),
-          ...(questionType === 2 &&
-            (multiConfirm
-              ? [
-                  modelValue.indexOf(item.value) !== -1 &&
-                  correctAnswer.indexOf(item.value) !== -1
-                    ? 'right_answer'
-                    : '',
-                  modelValue.indexOf(item.value) !== -1 &&
-                  correctAnswer.indexOf(item.value) === -1
-                    ? 'wrong_answer'
-                    : '',
-                ]
-              : [
-                  modelValue.indexOf(item.value) !== -1 ? 'picked_answer' : '',
-                ])),
+          getOptionClass(item),
         ]"
         @click="
           chosenAnswer({
@@ -117,9 +129,9 @@ function chosenAnswer({
         <custom-icon
           v-if="
             questionType === 1
-              ? modelValue && item.value === correctAnswer
+              ? answer === item.value && answer === correctAnswer
               : multiConfirm &&
-                modelValue.indexOf(item.value) !== -1 &&
+                answer.indexOf(item.value) !== -1 &&
                 correctAnswer.indexOf(item.value) !== -1
           "
           icon-name="rightIcon"
@@ -127,9 +139,9 @@ function chosenAnswer({
         <custom-icon
           v-if="
             questionType === 1
-              ? modelValue === item.value && modelValue !== correctAnswer
+              ? answer === item.value && answer !== correctAnswer
               : multiConfirm &&
-                modelValue.indexOf(item.value) !== -1 &&
+                answer.indexOf(item.value) !== -1 &&
                 correctAnswer.indexOf(item.value) === -1
           "
           icon-name="wrongIcon"
@@ -137,7 +149,7 @@ function chosenAnswer({
       </view>
     </view>
     <view
-      v-if="questionType === 1 ? modelValue : modelValue && multiConfirm"
+      v-if="questionType === 1 ? answer : answer && multiConfirm"
       class="mt-16px"
     >
       <view
@@ -153,7 +165,7 @@ function chosenAnswer({
         <view class="flex items-center">
           已选答案：
           <text class="text-red-7 text-16px">{{
-            questionType === 1 ? modelValue : (modelValue as string[]).join(",")
+            questionType === 1 ? answer : (answer as string[]).join(",")
           }}</text>
         </view>
       </view>
