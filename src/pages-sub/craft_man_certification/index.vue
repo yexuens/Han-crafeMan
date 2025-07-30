@@ -33,7 +33,7 @@ const form = reactive({
   progress: 0,
 });
 const currentExamItemIndex = ref(0);
-const isFinishedLearn = computed(() => form.progress >= 100);
+const isFinishedLearn = computed(() => form.progress >= 94);
 const reviewResultInfo = computed(() => {
   switch (user.userInfo?.integral) {
     case 1:
@@ -53,17 +53,7 @@ const reviewResultInfo = computed(() => {
       };
   }
 });
-const rightExamItemCount = computed(
-  () =>
-    examResultList.value?.filter((item) =>
-      item.questionType === 2
-        ? areArraysEqual(
-            item.answer as string[],
-            item.correctAnswer as string[],
-          )
-        : item.answer === item.correctAnswer,
-    ).length,
-);
+const rightExamItemCount = ref(0);
 const nextStepBtnDisabled = computed(() => {
   switch (step.value) {
     case 1:
@@ -164,7 +154,7 @@ function getStepByUser() {
 async function handleCertificateSuccess() {
   await uni.showModal({
     title: "恭喜您",
-    content: "认证成功，等待管理员审核通过",
+    content: "提交成功，等待管理员审核通过",
     showCancel: false,
     confirmText: "返回主页",
   });
@@ -201,6 +191,16 @@ async function handleNextQuestionOrFinished() {
     });
     if (confirm) current.multiConfirm = true;
     return;
+  }
+  if (
+    current.questionType === 2
+      ? areArraysEqual(
+          current.answer as string[],
+          current.correctAnswer as string[],
+        )
+      : current.answer === current.correctAnswer
+  ) {
+    rightExamItemCount.value += 1;
   }
   if (currentExamItemIndex.value < examResultList.value.length - 1) {
     currentExamItemIndex.value += 1;

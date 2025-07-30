@@ -139,6 +139,9 @@ async function queryUnits() {
   }
 }
 
+onShareAppMessage(() => {
+  return {};
+});
 onLoad(() => {
   queryUnits();
 });

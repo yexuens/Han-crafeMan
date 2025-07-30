@@ -2,6 +2,7 @@
 import dayjs from "dayjs";
 import { formatDurationSmart } from "@/utils/time";
 import { OrderStatus } from "@/enums";
+import { previewImg } from "@/utils";
 
 const orderRightLabelMap = {
   [OrderStatus.Published]: {
@@ -225,7 +226,10 @@ function navigateToDetail() {
     </view>
     <view class="px-16px mt-24px">
       <view
-        v-if="OrderStatus.GroupCodeUploaded === status"
+        v-if="
+          OrderStatus.GroupCodeUploaded === status ||
+          OrderStatus.GroupConnecting === status
+        "
         class="w-full flex items-center justify-between"
       >
         <view class="text-14px flex flex-col gap-y-8px">
@@ -233,9 +237,10 @@ function navigateToDetail() {
           <view> 请尽快扫码加入项目群</view>
         </view>
         <image
+          @click="previewImg(data.qrCode)"
           class="h-72px w-72px"
           mode="aspectFill"
-          src="https://cdn.juesedao.cn/mdy/2293a4a5523843dba5129f2233f163a7"
+          :src="data.qrCode"
         />
       </view>
     </view>

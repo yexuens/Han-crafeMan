@@ -219,6 +219,9 @@ onShow(async () => {
   fetchNoticeList();
   handleRefresh();
 });
+onShareAppMessage(() => {
+  return {};
+});
 </script>
 
 <template>

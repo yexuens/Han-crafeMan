@@ -18,6 +18,7 @@ import { queryRequirementCount } from "@/service/requirement";
 const craftManCount = ref(0);
 const current = ref(0);
 const isCraftMan = computed(() => user.userInfo?.role === 1);
+const isFinishCraftAuth = computed(() => user.userInfo?.name);
 const user = useUserStore();
 const popupShow = ref(false);
 const menuButtonArea = uni.getMenuButtonBoundingClientRect();
@@ -66,7 +67,10 @@ const bannerTextList = ref([
 ]);
 onShow(() => {
   fetchManCount();
-  if (isCraftMan.value) fetchRequirementCount();
+  if (isFinishCraftAuth.value) fetchRequirementCount();
+});
+onShareAppMessage(() => {
+  return {};
 });
 </script>
 
@@ -165,7 +169,7 @@ onShow(() => {
   </view>
   <content-popup v-model="popupShow" />
   <image
-    v-if="!user.isLogin"
+    v-if="!user.isLogin || !isFinishCraftAuth"
     class="fixed bottom-100px right-0 h-40px w-100px"
     mode="widthFix"
     :src="imgRes.registerCraftButton"
@@ -174,7 +178,7 @@ onShow(() => {
   <!--  接单中心 -->
   <view
     @click="navigateToOrderCenter"
-    v-if="user.isLogin"
+    v-else
     class="fixed bottom-40px left-50% h-[66px] w-[350px] flex shrink-0 items-center rounded-[20px] bg-gradient-[180deg,#FE9B6A_0%,#F6631B_100%] bg-gradient-linear px-26px py-8px shadow-[0px_4px_4px_0px_#FFD1BA,0px_4px_4px_0px_#FFE6D9,0px_4px_4px_0px_#FFBB98_inset] -translate-x-1/2"
   >
     <image class="h-50px w-50px" :src="imgRes.orderReceivingCenter" />

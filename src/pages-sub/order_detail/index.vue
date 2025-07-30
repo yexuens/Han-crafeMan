@@ -178,6 +178,9 @@ onPullDownRefresh(async () => {
   await getDetail(id.value);
   uni.stopPullDownRefresh();
 });
+onShareAppMessage(() => {
+  return {};
+});
 </script>
 
 <template>
@@ -269,7 +272,10 @@ onPullDownRefresh(async () => {
               </view>
             </view>
           </view>
-          <view class="flex justify-between w-full text-14px">
+          <view
+            v-if="userId !== requirementDetail.userId"
+            class="flex justify-between w-full text-14px"
+          >
             <view class="text-#060606 opacity-60 shrink-0 pr-48px"
               >客户名称
             </view>
@@ -282,21 +288,18 @@ onPullDownRefresh(async () => {
             <view>{{ requirementDetail.address }}</view>
           </view>
           <view
-            v-if="
-              jobState !== OrderStatus.Published &&
-              jobState === OrderStatus.WasCanceled &&
-              requirementDetail.workmanName
-            "
+            v-if="requirementDetail.workmanName"
             class="flex justify-between w-full text-14px"
           >
-            <view class="text-#060606 opacity-60 shrink-0 pr-48px">接单人</view>
+            <view class="text-#060606 opacity-60 shrink-0 pr-48px"
+              >接单师傅</view
+            >
             <view>{{ requirementDetail.workmanName }}</view>
           </view>
           <view
             v-if="
               jobState === OrderStatus.GroupCodeUploaded ||
-              jobState === OrderStatus.GroupConnecting ||
-              jobState === OrderStatus.Completed
+              jobState === OrderStatus.GroupConnecting
             "
             class="flex justify-between w-full text-14px"
           >

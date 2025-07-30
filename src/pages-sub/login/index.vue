@@ -50,6 +50,9 @@ onLoad((opt) => {
     console.log(redirectUrl.value);
   }
 });
+onShareAppMessage(() => {
+  return {};
+});
 </script>
 
 <template>

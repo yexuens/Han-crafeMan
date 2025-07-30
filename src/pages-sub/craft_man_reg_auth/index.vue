@@ -60,7 +60,6 @@ async function handleSubmit() {
   const { code } = await updateUserProfile({
     ...form,
     userId: user.userInfo.id,
-    role: 1,
   });
   if (code !== 1) {
     toast.info("认证失败");
