@@ -104,7 +104,6 @@ onLoad((opt) => {
 </template>
 <style scoped>
 .login_bg {
-  width: 375px;
   height: 500px;
   flex-shrink: 0;
 

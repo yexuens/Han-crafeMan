@@ -22,6 +22,8 @@ import {
 } from "@/schemas";
 import { useUserStore } from "@/store";
 import { toast } from "@/utils/toast";
+import { queryUnitList } from "@/service/system";
+import { isNotEmpty } from "@/utils";
 
 const customUnit = reactive<IAddCustomSpecs>({
   unit: "",
@@ -40,48 +42,7 @@ const unitList = ref<
     refPrice: number;
     userPrice: number | null;
   }[]
->([
-  {
-    unit: "200x1200mm",
-    refPrice: 24,
-    userPrice: null,
-  },
-  {
-    unit: "300x600mm",
-    refPrice: 18,
-    userPrice: null,
-  },
-  {
-    unit: "600x600mm",
-    refPrice: 28,
-    userPrice: null,
-  },
-  {
-    unit: "800x800mm",
-    refPrice: 35,
-    userPrice: null,
-  },
-  {
-    unit: "400x800mm",
-    refPrice: 22,
-    userPrice: null,
-  },
-  {
-    unit: "750x1500mm",
-    refPrice: 58,
-    userPrice: null,
-  },
-  {
-    unit: "900x1800mm",
-    refPrice: 75,
-    userPrice: null,
-  },
-  {
-    unit: "300x300mm",
-    refPrice: 12,
-    userPrice: null,
-  },
-]);
+>([]);
 const getSpecs = () =>
   form.pickedSpecs.map((name) => {
     const item = unitList.value.find((unit) => unit.unit === name);
@@ -163,6 +124,24 @@ function resetCustomUnit() {
   customUnit.unit = "";
   customUnit.price = NaN;
 }
+
+async function queryUnits() {
+  const { data } = await queryUnitList();
+  if (isNotEmpty(data)) {
+    const rawData = data[0].children[0].children;
+    if (isNotEmpty(rawData)) {
+      unitList.value = rawData.map((item) => ({
+        unit: item.name,
+        refPrice: Number(item.yuliutwo),
+        userPrice: null,
+      }));
+    }
+  }
+}
+
+onLoad(() => {
+  queryUnits();
+});
 </script>
 
 <template>
@@ -181,10 +160,10 @@ function resetCustomUnit() {
       <view class="flex items-center justify-between">
         <view class="text-18px font-600"> 需求填写</view>
         <icon-button
-          open-type="contact"
           :height="24"
           :width="28"
           icon-name="serviceIcon"
+          open-type="contact"
         />
       </view>
       <view>

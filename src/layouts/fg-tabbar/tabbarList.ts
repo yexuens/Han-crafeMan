@@ -1,4 +1,4 @@
-import type { TabBar } from '@uni-helper/vite-plugin-uni-pages'
+import type { TabBar } from "@uni-helper/vite-plugin-uni-pages";
 
 /**
  * tabbar 选择的策略，更详细的介绍见 tabbar.md 文件
@@ -14,40 +14,40 @@ export const TABBAR_MAP = {
   NATIVE_TABBAR: 1,
   CUSTOM_TABBAR_WITH_CACHE: 2,
   CUSTOM_TABBAR_WITHOUT_CACHE: 3,
-}
+};
 // TODO：通过这里切换使用tabbar的策略
-export const selectedTabbarStrategy = TABBAR_MAP.NATIVE_TABBAR
+export const selectedTabbarStrategy = TABBAR_MAP.NATIVE_TABBAR;
 
 // selectedTabbarStrategy==NATIVE_TABBAR(1) 时，需要填 iconPath 和 selectedIconPath
 // selectedTabbarStrategy==CUSTOM_TABBAR(2,3) 时，需要填 icon 和 iconType
 // selectedTabbarStrategy==NO_TABBAR(0) 时，tabbarList 不生效
-export const tabbarList: TabBar['list'] = [
+export const tabbarList: TabBar["list"] = [
   {
-    iconPath: 'static/tabbar/home.png',
-    selectedIconPath: 'static/tabbar/homeHL.png',
-    pagePath: 'pages/index/index',
-    text: '首页',
-    icon: 'image',
+    iconPath: "static/tabbar/home.png",
+    selectedIconPath: "static/tabbar/homeA.png",
+    pagePath: "pages/index/index",
+    text: "首页",
+    icon: "image",
     // 选用 UI 框架自带的 icon 时，iconType 为 uiLib
-    iconType: 'uiLib',
+    iconType: "uiLib",
   },
   {
-    iconPath: 'static/tabbar/example.png',
-    selectedIconPath: 'static/tabbar/exampleHL.png',
-    pagePath: 'pages/publish/index',
-    text: '发布需求',
-    icon: 'i-carbon-code',
+    iconPath: "static/tabbar/publish.png",
+    selectedIconPath: "static/tabbar/publishA.png",
+    pagePath: "pages/publish/index",
+    text: "发布需求",
+    icon: "i-carbon-code",
     // 注意 unocss 的图标需要在 页面上引入一下，或者配置到 unocss.config.ts 的 safelist 中
-    iconType: 'unocss',
+    iconType: "unocss",
   },
   {
-    iconPath: 'static/tabbar/example.png',
-    selectedIconPath: 'static/tabbar/exampleHL.png',
-    pagePath: 'pages/mine/index',
-    text: '我的',
-    icon: 'i-carbon-code',
+    iconPath: "static/tabbar/mine.png",
+    selectedIconPath: "static/tabbar/mineA.png",
+    pagePath: "pages/mine/index",
+    text: "我的",
+    icon: "i-carbon-code",
     // 注意 unocss 的图标需要在 页面上引入一下，或者配置到 unocss.config.ts 的 safelist 中
-    iconType: 'unocss',
+    iconType: "unocss",
   },
   // {
   //   pagePath: 'pages/my/index',
@@ -61,23 +61,20 @@ export const tabbarList: TabBar['list'] = [
   //   icon: 'iconfont icon-my',
   //   iconType: 'iconfont',
   // },
-]
+];
 
 // NATIVE_TABBAR(1) 和 CUSTOM_TABBAR_WITH_CACHE(2) 时，需要tabbar缓存
-export const cacheTabbarEnable = selectedTabbarStrategy === TABBAR_MAP.NATIVE_TABBAR
-  || selectedTabbarStrategy === TABBAR_MAP.CUSTOM_TABBAR_WITH_CACHE
+export const cacheTabbarEnable =
+  selectedTabbarStrategy === TABBAR_MAP.NATIVE_TABBAR ||
+  selectedTabbarStrategy === TABBAR_MAP.CUSTOM_TABBAR_WITH_CACHE;
 
 const _tabbar: TabBar = {
-  color: '#999999',
-  selectedColor: '#018d71',
-  backgroundColor: '#F8F8F8',
-  borderStyle: 'black',
-  height: '50px',
-  fontSize: '10px',
-  iconWidth: '24px',
-  spacing: '3px',
+  color: "#999999",
+  selectedColor: "#f6631b",
+  backgroundColor: "#F8F8F8",
+  borderStyle: "black",
   list: tabbarList,
-}
+};
 
 // 0和1 需要显示底部的tabbar的各种配置，以利用缓存
-export const tabBar = cacheTabbarEnable ? _tabbar : undefined
+export const tabBar = cacheTabbarEnable ? _tabbar : undefined;

@@ -16,33 +16,29 @@
   },
   "tabBar": {
     "color": "#999999",
-    "selectedColor": "#018d71",
+    "selectedColor": "#f6631b",
     "backgroundColor": "#F8F8F8",
     "borderStyle": "black",
-    "height": "50px",
-    "fontSize": "10px",
-    "iconWidth": "24px",
-    "spacing": "3px",
     "list": [
       {
         "iconPath": "static/tabbar/home.png",
-        "selectedIconPath": "static/tabbar/homeHL.png",
+        "selectedIconPath": "static/tabbar/homeA.png",
         "pagePath": "pages/index/index",
         "text": "首页",
         "icon": "image",
         "iconType": "uiLib"
       },
       {
-        "iconPath": "static/tabbar/example.png",
-        "selectedIconPath": "static/tabbar/exampleHL.png",
+        "iconPath": "static/tabbar/publish.png",
+        "selectedIconPath": "static/tabbar/publishA.png",
         "pagePath": "pages/publish/index",
         "text": "发布需求",
         "icon": "i-carbon-code",
         "iconType": "unocss"
       },
       {
-        "iconPath": "static/tabbar/example.png",
-        "selectedIconPath": "static/tabbar/exampleHL.png",
+        "iconPath": "static/tabbar/mine.png",
+        "selectedIconPath": "static/tabbar/mineA.png",
         "pagePath": "pages/mine/index",
         "text": "我的",
         "icon": "i-carbon-code",

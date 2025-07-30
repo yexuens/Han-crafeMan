@@ -35,3 +35,8 @@ export enum BannerModule {
 export async function getBanner(module: BannerModule) {
   return await http.get<any[]>("/oe_getBannerImages_.csp", { module: module });
 }
+export async function queryUnitList() {
+  return await http.get<any[]>("/oe_productTypeList_.csp", {
+    curPage: 1,
+  });
+}
