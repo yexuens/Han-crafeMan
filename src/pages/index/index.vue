@@ -17,18 +17,6 @@ import { useUserStore } from "@/store";
 import { queryRequirementCount } from "@/service/requirement";
 const craftManCount = ref(0);
 const current = ref(0);
-const list = [
-  {
-    title: "老夫聊发少年狂，左牵黄，右擎苍，锦帽貂裘，千骑卷平冈。",
-  },
-  {
-    title: "为报倾城随太守，亲射虎，看孙郎。",
-  },
-  {
-    title:
-      "酒酣胸胆尚开张。鬓微霜，又何妨！持节云中，何日遣冯唐？会挽雕弓如满月，西北望，射天狼。",
-  },
-];
 const isCraftMan = computed(() => user.userInfo?.role === 1);
 const user = useUserStore();
 const popupShow = ref(false);
@@ -62,6 +50,20 @@ function navigateToOrderCenter() {
     url: "/pages-sub/craft_man_order_center/index",
   });
 }
+const bannerTextList = ref([
+  {
+    title: "业主自主出价更优惠\n" + "十万工匠更快接单",
+    sub: "去掉中间商工价公开透明\n" + "需求直接对工匠效率更高",
+  },
+  {
+    title: "业主议价：更优惠！\n海量工匠：极速响应！",
+    sub: "告别中间差价，明码实价\n需求秒达工匠，效率倍增",
+  },
+  {
+    title: "价格由你定，工匠秒响应！",
+    sub: "砍掉中间商，透明更高效。",
+  },
+]);
 onShow(() => {
   fetchManCount();
   if (isCraftMan.value) fetchRequirementCount();
@@ -119,7 +121,7 @@ onShow(() => {
           <!--          内容轮播 -->
           <view
             style="position: relative"
-            class="h-full w-180px py-20px pl-24px"
+            class="h-full w-220px py-20px pl-24px"
           >
             <swiper
               :current="current"
@@ -127,12 +129,15 @@ onShow(() => {
               :interval="3000"
               @change="current = $event.detail.current"
             >
-              <swiper-item class="slide slide1"> 1 </swiper-item>
-              <swiper-item class="slide slide2"> 2 </swiper-item>
-              <swiper-item class="slide slide3"> 3 </swiper-item>
+              <swiper-item v-for="(item, index) in bannerTextList" :key="index">
+                <view class="text-white text-16px font-bold">{{
+                  item.title
+                }}</view>
+                <view class="text-12px mt-14px text-white">{{ item.sub }}</view>
+              </swiper-item>
             </swiper>
             <sar-swiper-dot
-              :list="list"
+              :list="bannerTextList"
               field="title"
               :current="current"
               type="dot-bar"

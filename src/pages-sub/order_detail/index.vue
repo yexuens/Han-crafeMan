@@ -16,9 +16,9 @@ import {
 } from "@/service/requirement";
 import {
   craftManOrderStatusText,
-  orderStatusNoticeInfoMap,
   OrderStatus,
   OrderStatusByUser,
+  orderStatusNoticeInfoMap,
 } from "@/enums/requirement";
 import { isNotEmpty, navigateBack, previewImg } from "@/utils";
 import { toast } from "@/utils/toast";
@@ -38,7 +38,10 @@ const requirementStatusByUser = computed<OrderStatusByUser>(() => {
     ) {
       return OrderStatusByUser["已完成/已取消"];
     }
-    if (userRole.value === 0) {
+    if (
+      userRole.value === 0 ||
+      user.userInfo.id === requirementDetail.value.userId
+    ) {
       // 用户提价
       if (jobState.value === OrderStatus.Published) {
         return OrderStatusByUser["用户已发单,工匠未接单"];
@@ -85,8 +88,10 @@ async function handleCancel() {
           const { code } = await addOrEditRequirement({
             id: requirementDetail.value.id,
             jobState: OrderStatus.WasCanceled.valueOf(),
-            ...(userRole.value === 1 && { accesUserId: userId.value }),
-            ...(userRole.value === 0 && { userId: userId.value }),
+            ...(userRole.value === 0 ||
+            userId.value === requirementDetail.value.userId
+              ? { userId: userId.value }
+              : { accesUserId: userId.value }),
           });
           if (code !== 1) throw new Error("取消工单失败");
           toast.info("取消成功");
@@ -107,7 +112,7 @@ async function handleEditPriceFinished({ data, isSuccess }) {
     await addOrEditRequirement({
       id: id.value,
       specs: data,
-      userId: userId.value || 1,
+      userId: userId.value,
     });
     toast.info("修改成功");
   } catch (e) {
@@ -142,15 +147,14 @@ function openEditPriceDialog() {
 }
 
 function validateDetail() {
-  if (requirementDetail.value) {
-    if (requirementDetail.value.userId === userId.value) return;
-    if (
-      requirementDetail.value.jobState === OrderStatus.Published ||
-      (userRole.value === 1 &&
-        requirementDetail.value.accesUserId === userId.value)
-    )
-      return;
-  }
+  if (
+    requirementDetail.value.userId === userId.value ||
+    (requirementDetail.value.jobState === OrderStatus.Published &&
+      userRole.value === 1) ||
+    requirementDetail.value.accesUserId === userId.value
+  )
+    return;
+
   uni.showModal({
     title: "权限不足",
     content: "您没有权限查看该工单",
@@ -206,7 +210,7 @@ onPullDownRefresh(async () => {
               :size="'small'"
             >
               {{
-                userRole === 0
+                userRole === 0 || userId === requirementDetail.userId
                   ? craftManOrderStatusText[jobState].user
                   : craftManOrderStatusText[jobState].crafeman
               }}
@@ -230,7 +234,7 @@ onPullDownRefresh(async () => {
           />
           <text class="text-12px font-500"
             >{{
-              userRole === 0
+              userRole === 0 || userId === requirementDetail.userId
                 ? orderStatusNoticeInfoMap[jobState].user
                 : orderStatusNoticeInfoMap[jobState].crafeman
             }}
@@ -299,10 +303,10 @@ onPullDownRefresh(async () => {
             <view class="text-#060606 opacity-60 shrink-0 pr-48px">项目群</view>
             <view>
               <image
-                @click="previewImg(requirementDetail.qrCode)"
-                mode="widthFix"
                 :src="requirementDetail.qrCode"
                 class="w-120px w-120px"
+                mode="widthFix"
+                @click="previewImg(requirementDetail.qrCode)"
               />
             </view>
           </view>

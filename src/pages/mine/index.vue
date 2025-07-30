@@ -13,6 +13,7 @@
 <script lang="ts" setup>
 import NavWithSupport from "@/components/navWithSupport.vue";
 import {
+  addOrEditRequirement,
   queryRequirementList,
   queryRequirementNotice,
 } from "@/service/requirement";
@@ -21,6 +22,7 @@ import { useUserStore } from "@/store";
 import { imgRes } from "@/constants";
 import { useSafeAreaStyle } from "@/composables/useSafeAreaStyle";
 import { isNotEmpty } from "@/utils";
+import { toast } from "@/utils/toast";
 
 const user = useUserStore();
 const navTransparent = useNavTransparent();
@@ -112,12 +114,34 @@ onPullDownRefresh(async () => {
 
   uni.stopPullDownRefresh();
 });
+
+async function handleEditPriceFinished({ data, isSuccess }) {
+  specsEditDialogShow.value = false;
+  if (!isSuccess) return;
+  try {
+    await addOrEditRequirement({
+      id: latestRequirement.value.id,
+      specs: data,
+      userId: user.userInfo.id,
+    });
+    toast.info("修改成功");
+  } catch (e) {
+    toast.info("修改价格失败");
+  } finally {
+    fetchData();
+  }
+}
+const specsEditDialogShow = ref(false);
 onShareAppMessage(() => {
   return {
     title: shareMode.value ? "邀请业主" : "邀请工人",
     imageUrl: shareMode.value ? imgRes.inviteUserImg : imgRes.inviteCraftsImg,
   };
 });
+
+function openEditPriceDialog() {
+  specsEditDialogShow.value = true;
+}
 </script>
 
 <template>
@@ -127,6 +151,14 @@ onShareAppMessage(() => {
       :transparent="navTransparent.transparent.value"
       title="工作台"
     />
+    <view v-if="latestRequirement">
+      <specs-edit-dialog
+        :id="latestRequirement.id"
+        :show="specsEditDialogShow"
+        :specs-list="latestRequirement.specs"
+        @finish="handleEditPriceFinished"
+      />
+    </view>
     <view :style="style" class="mx-auto w-90vw">
       <view
         class="mt-20px flex items-center gap-x-12px"
@@ -181,6 +213,7 @@ onShareAppMessage(() => {
           <requirement-card
             :enable-shadow="true"
             :requirement="latestRequirement"
+            @addPrice="openEditPriceDialog"
           />
         </view>
         <!--        常用功能 -->

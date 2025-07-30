@@ -100,8 +100,9 @@ async function handleCancelOrder(id: number) {
           const { code } = await addOrEditRequirement({
             id: id,
             jobState: OrderStatus.WasCanceled.valueOf(),
-            ...(user.userInfo.role === 1 && { accesUserId: user.userInfo.id }),
-            ...(user.userInfo.role === 0 && { userId: user.userInfo.id }),
+            ...(user.userInfo.role === 0 || user.userInfo.id === id
+              ? { userId: user.userInfo.id }
+              : { accesUserId: user.userInfo.id }),
           });
           if (code !== 1) throw new Error("取消工单失败");
           toast.info("取消成功");
@@ -131,12 +132,14 @@ function beforeGrabAuth() {
   }
   throw new Error();
 }
+
 async function handleNavigateToDetail(id: number) {
   beforeGrabAuth();
   uni.navigateTo({
     url: `/pages-sub/order_detail/index?id=${id}`,
   });
 }
+
 async function handleGrabOrder(id: number) {
   beforeGrabAuth();
   try {
@@ -301,8 +304,8 @@ onShow(async () => {
               :key="item.id"
               :requirement="item"
               @cancel="handleCancelOrder"
-              @grab="handleGrabOrder"
               @detail="handleNavigateToDetail"
+              @grab="handleGrabOrder"
             />
             <sar-empty
               v-if="!isNotEmpty(orderList)"

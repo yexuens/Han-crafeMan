@@ -71,4 +71,9 @@ page {
   flex-shrink: 0;
   background: linear-gradient(180deg, #f8e4db 0%, #faf2ee 100px, #f6f6f6 400px);
 }
+page,
+.sar-portal {
+  --sar-swiper-dot-active-bg: #ffffff;
+  --sar-swiper-dot-bg: rgba(255, 255, 255, 0.3);
+}
 </style>
