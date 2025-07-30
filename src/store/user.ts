@@ -90,6 +90,12 @@ export const useUserStore = defineStore(
         throw new Error("user Not Logged In");
       }
     }
+    function updateUserLocal(_userInfo: Partial<IUserInfo>) {
+      // userInfo.value = {
+      //   ...userInfo.value,
+      //   ..._userInfo,
+      // };
+    }
 
     async function updateUser() {
       if (!isLogin.value) return;
@@ -107,6 +113,7 @@ export const useUserStore = defineStore(
       isLogin,
       checkLogin,
       updateUser,
+      updateUserLocal,
     };
   },
   {

@@ -169,7 +169,7 @@ onShow(() => {
   <!--  接单中心 -->
   <view
     @click="navigateToOrderCenter"
-    v-if="isCraftMan && user.isLogin"
+    v-if="user.isLogin"
     class="fixed bottom-40px left-50% h-[66px] w-[350px] flex shrink-0 items-center rounded-[20px] bg-gradient-[180deg,#FE9B6A_0%,#F6631B_100%] bg-gradient-linear px-26px py-8px shadow-[0px_4px_4px_0px_#FFD1BA,0px_4px_4px_0px_#FFE6D9,0px_4px_4px_0px_#FFBB98_inset] -translate-x-1/2"
   >
     <image class="h-50px w-50px" :src="imgRes.orderReceivingCenter" />

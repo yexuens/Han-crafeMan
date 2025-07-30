@@ -25,6 +25,7 @@ import { isNotEmpty } from "@/utils";
 const user = useUserStore();
 const navTransparent = useNavTransparent();
 const latestRequirement = ref();
+const shareMode = ref<0 | 1>(0);
 const { style } = useSafeAreaStyle();
 const screenHeight = uni.getSystemInfoSync().windowHeight;
 const noticeData = ref("");
@@ -37,19 +38,27 @@ const featureList = [
   {
     label: "邀请业主",
     iconUrl: "https://cdn.juesedao.cn/mdy/93afb76a8c1c4060b18cdd85be574bed",
-    handleFunc() {},
+    openType: "share",
+    handleFunc() {
+      shareMode.value = 1;
+    },
   },
   {
     label: "邀请工人",
     iconUrl: "https://cdn.juesedao.cn/mdy/e2452f5fa67a432c9774aa4525ca1b71",
-    handleFunc() {},
+    openType: "share",
+    handleFunc() {
+      shareMode.value = 0;
+    },
   },
 ];
+
 function navigateToAllRequirement() {
   uni.navigateTo({
     url: "/pages-sub/user_orders/index",
   });
 }
+
 async function fetchData() {
   const { data } = await queryRequirementList({
     userId: user.userInfo.id,
@@ -59,12 +68,14 @@ async function fetchData() {
   });
   if (isNotEmpty(data)) latestRequirement.value = data[0];
 }
+
 function navigateToLogin() {
   if (user.isLogin) return;
   uni.navigateTo({
     url: "/pages-sub/login/index",
   });
 }
+
 async function fetchNotice() {
   const { data } = await queryRequirementNotice({
     type: 0,
@@ -76,11 +87,13 @@ async function fetchNotice() {
     noticeData.value = data[0];
   }
 }
+
 function navigateToEditProfile() {
   uni.navigateTo({
     url: "/pages-sub/user_profile/index?scene=2",
   });
 }
+
 onShow(async () => {
   if (!user.isLogin) return;
   fetchData();
@@ -99,6 +112,12 @@ onPullDownRefresh(async () => {
 
   uni.stopPullDownRefresh();
 });
+onShareAppMessage(() => {
+  return {
+    title: shareMode.value ? "邀请业主" : "邀请工人",
+    imageUrl: shareMode.value ? imgRes.inviteUserImg : imgRes.inviteCraftsImg,
+  };
+});
 </script>
 
 <template>
@@ -108,20 +127,20 @@ onPullDownRefresh(async () => {
       :transparent="navTransparent.transparent.value"
       title="工作台"
     />
-    <view class="mx-auto w-90vw" :style="style">
+    <view :style="style" class="mx-auto w-90vw">
       <view
         class="mt-20px flex items-center gap-x-12px"
         @click="navigateToLogin"
       >
         <image
-          class="h48px w48px rounded-full"
           :src="user.userInfo.wxPhoto || imgRes.defaultAvatar"
+          class="h48px w48px rounded-full"
         />
         <view class="flex flex-col gap-y-4px justify-center">
           <view class="flex items-center gap-x-4px">
             <view class="text-16px font-bold">
-              {{ user.userInfo.wxName || "待登录" }}</view
-            >
+              {{ user.userInfo.wxName || "待登录" }}
+            </view>
             <sar-tag
               v-if="user.isLogin"
               root-class="!px-8px"
@@ -169,11 +188,12 @@ onPullDownRefresh(async () => {
           <view class="font-500"> 常用功能</view>
           <view class="grid grid-cols-4 mt-18px gap-40px">
             <button
-              @click="item.handleFunc"
-              hover-class="none"
               v-for="(item, index) in featureList"
               :key="index"
+              :open-type="item?.openType"
               class="flex flex-col items-center justify-center !bg-transparent !p-0"
+              hover-class="none"
+              @click="item?.handleFunc"
             >
               <custom-icon :custom-url="item.iconUrl" :size="22" />
               <view class="text-12px opacity-70">

@@ -144,7 +144,7 @@ const bottomBtnGroupMap = {
 };
 
 const props = defineProps(["requirement"]);
-const emits = defineEmits(["cancel", "grab"]);
+const emits = defineEmits(["cancel", "grab", "detail"]);
 
 const bottomBtnGroupByStatus = computed(() => bottomBtnGroupMap[status.value]);
 
@@ -169,10 +169,7 @@ const hasQrCode = computed(
 );
 
 function navigateToDetail() {
-  console.log("detail");
-  uni.navigateTo({
-    url: `/pages-sub/order_detail/index?id=${data.value?.id}`,
-  });
+  emits("detail", data.value.id);
 }
 </script>
 

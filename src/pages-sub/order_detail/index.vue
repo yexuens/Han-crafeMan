@@ -120,6 +120,9 @@ async function handleEditPriceFinished({ data, isSuccess }) {
 async function handleGrabOrder() {
   if (userRole.value !== 1) return;
   try {
+    if (!requirementDetail.value) throw new Error("工单不存在");
+    if (requirementDetail.value.userId === user.userInfo.id)
+      throw new Error("不能抢自己发布的单");
     const { code } = await addOrEditRequirement({
       id: requirementDetail.value.id,
       jobState: 1,

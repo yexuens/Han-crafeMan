@@ -60,7 +60,7 @@ const noticeList = ref([]);
 const navTransparent = useNavTransparent();
 const user = useUserStore();
 const refresher = useCustomRefresher();
-const { mutate: queryList, data: requirementList } = useMutation(
+const { mutate: queryList, data: orderList } = useMutation(
   queryRequirementList,
   {
     select({ data }) {
@@ -108,9 +108,7 @@ async function handleCancelOrder(id: number) {
         } catch (e) {
           toast.info(e.message || "取消工单失败");
         } finally {
-          fetchData({
-            refresh: true,
-          });
+          handleRefresh();
         }
       }
     },
@@ -119,38 +117,43 @@ async function handleCancelOrder(id: number) {
 
 function beforeGrabAuth() {
   switch (user.userInfo.integral) {
+    case 1:
+    case 3:
+      uni.navigateTo({
+        url: "/pages-sub/craft_man_certification/index",
+      });
+      break;
     case 0:
       certDialogVisible.value = true;
-      break;
-    case 1:
-      toast.info("认证信息待管理员审核");
-      break;
-    case 3:
-      toast.info("工匠认证不通过，请联系客服");
       break;
     default:
       return;
   }
   throw new Error();
 }
-
+async function handleNavigateToDetail(id: number) {
+  beforeGrabAuth();
+  uni.navigateTo({
+    url: `/pages-sub/order_detail/index?id=${id}`,
+  });
+}
 async function handleGrabOrder(id: number) {
   beforeGrabAuth();
-
   try {
-    if (user.userInfo.role !== 1) throw new Error("你不是工匠，不能抢单");
+    const order = orderList.value.find((item) => item.id === id);
+    if (!order) throw new Error("工单不存在");
+    if (order.userId === user.userInfo.id)
+      throw new Error("不能抢自己发布的单");
     const { code } = await addOrEditRequirement({
       id,
       jobState: OrderStatus.Accepted,
       accesUserId: user.userInfo.id,
     });
-    if (code) toast.info("抢单成功");
+    if (code === 1) toast.info("抢单成功");
   } catch (e) {
-    toast.error("抢单失败");
+    toast.info(e.message || "抢单失败");
   } finally {
-    fetchData({
-      refresh: true,
-    });
+    handleRefresh();
   }
 }
 
@@ -194,6 +197,7 @@ async function handleRefresh() {
       refresh: true,
     }),
   );
+  fetchRequirementCount();
 }
 
 function changeStatus(status: string) {
@@ -207,12 +211,10 @@ onPageScroll((e) => {
   e.scrollTop === 0 ? refresher.enable() : refresher.disable();
 });
 onLoad((opt) => {});
-onShow(() => {
+onShow(async () => {
+  await user.updateUser();
   fetchNoticeList();
-  fetchData({
-    refresh: true,
-  });
-  fetchRequirementCount();
+  handleRefresh();
 });
 </script>
 
@@ -230,7 +232,8 @@ onShow(() => {
     class="common_bg"
   >
     <safe-area-layout>
-      <view class="pl-5vw flex items-center justify-between gap-x-28px mt-16px">
+      <!--      <view class="pl-5vw flex items-center justify-between gap-x-28px mt-16px">-->
+      <view class="px-5vw flex items-center justify-between gap-x-28px mt-16px">
         <sar-input
           v-model="form.keyword"
           placeholder="输入工单关键词搜索"
@@ -242,6 +245,7 @@ onShow(() => {
           </template>
         </sar-input>
         <view
+          v-if="false"
           class="bg-#FFE2D4 text-12px font-500 text-#733617 px-12px py-6px rounded-l-12px"
         >
           平台7天内总单
@@ -293,14 +297,15 @@ onShow(() => {
         >
           <view class="mt-28px flex flex-col gap-y-16px pb-24px">
             <requirement-card-for-craft-man
-              v-for="item in requirementList"
+              v-for="item in orderList"
               :key="item.id"
               :requirement="item"
               @cancel="handleCancelOrder"
               @grab="handleGrabOrder"
+              @detail="handleNavigateToDetail"
             />
             <sar-empty
-              v-if="!isNotEmpty(requirementList)"
+              v-if="!isNotEmpty(orderList)"
               description="暂无工单"
               root-class="!my-1/2"
             />

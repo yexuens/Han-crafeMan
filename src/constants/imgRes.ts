@@ -18,4 +18,7 @@ export const imgRes = {
   hansCnTitleImg:
     "https://cdn.juesedao.cn/mdy/56b00965fd9a45dc8c7e748830dc7f8e",
   defaultAvatar: "https://cdn.juesedao.cn/mdy/62ec6f063f0e40388e00f8200993fdbd",
+  inviteCraftsImg:
+    "https://cdn.juesedao.cn/mdy/230e50d211a749cf843da91f2c74e040",
+  inviteUserImg: "https://cdn.juesedao.cn/mdy/b94afda22a3046cb8fd3acc968607ec7",
 };

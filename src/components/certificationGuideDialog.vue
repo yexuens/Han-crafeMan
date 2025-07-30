@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 // Define component options
+import { useUserStore } from "@/store";
+
 defineOptions({
   options: {
     virtualHost: true,
@@ -23,21 +25,25 @@ const emit = defineEmits(["update:modelValue"]);
 function beforeClose() {
   return new Promise((resolve) => setTimeout(resolve, 300)); // Reduced delay for smoother feel
 }
-
+const user = useUserStore();
 // The guide list data remains the same.
-const guideList = ref([
+const guideList = computed(() => [
   {
     content: "第一步 上传身份证",
     status: 0,
-    unfinishedTip: "尚未完成上传",
-    btnLabel: "去上传",
+    unfinishedTip:
+      user.userInfo.yuliutwo && user.userInfo.yuliutwo
+        ? "已完成上传"
+        : "尚未完成上传",
+    btnLabel: user.userInfo.yuliutwo && user.userInfo.yuliutwo ? "" : "去上传",
     bgColor: "#f0fbe9",
   },
   {
     content: "第二步 完成视频学习",
     status: 1,
-    unfinishedTip: "尚未视频学习",
-    btnLabel: "去学习 ",
+    unfinishedTip:
+      user.userInfo.number === 1 ? "已完成视频学习" : "尚未视频学习",
+    btnLabel: user.userInfo.number === 1 ? "" : "去学习 ",
     bgColor: "#e9fbfb",
   },
   {
@@ -90,6 +96,7 @@ function navigateToCertification() {
             </view>
           </view>
           <view
+            v-if="item.btnLabel"
             class="go-to-btn flex items-center justify-center text-12px text-white"
           >
             {{ item.btnLabel }}

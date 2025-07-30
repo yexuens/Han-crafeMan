@@ -36,6 +36,7 @@ function handleLeftOperation() {
       <view
         class="absolute left-5% top-1/2 -translate-y-1/2"
         @click="handleLeftOperation"
+        v-show="leftArrow"
       >
         <custom-icon v-if="!isLastPage" icon-name="leftArrowIcon" />
         <custom-icon v-else icon-name="homeIcon" :size="18" />

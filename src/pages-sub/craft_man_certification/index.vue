@@ -34,7 +34,25 @@ const form = reactive({
 });
 const currentExamItemIndex = ref(0);
 const isFinishedLearn = computed(() => form.progress >= 100);
-
+const reviewResultInfo = computed(() => {
+  switch (user.userInfo?.integral) {
+    case 1:
+      return {
+        label: "等待管理员审核",
+        theme: "info",
+      };
+    case 2:
+      return {
+        label: "审核通过",
+        theme: "success",
+      };
+    case 3:
+      return {
+        label: "审核不通过，请联系客服",
+        theme: "danger",
+      };
+  }
+});
 const rightExamItemCount = computed(
   () =>
     examResultList.value?.filter((item) =>
@@ -92,20 +110,19 @@ const submitFunc = {
     if (code === 1) step.value += 1;
   },
   async handleCompleteVideoSubmit() {
-    if (user.userInfo.number === 1) {
-      step.value += 1;
+    if (!isNotEmpty(examList.value)) {
+      handleCertificateSuccess();
       return;
     }
-    const { code } = await updateUserProfile({
-      userId: user.userInfo.id,
-      number: 1,
-    });
-    if (code === 1) {
-      step.value += 1;
-      if (!videoUrl.value) step.value += 1;
+    if (user.userInfo.number !== 1) {
+      const { code } = await updateUserProfile({
+        userId: user.userInfo.id,
+        number: 1,
+      });
     }
+    step.value += 1;
   },
-  async handleExamSubmit() {
+  async handleSubmitExamResult() {
     const { code } = await updateUserProfile({
       userId: user.userInfo.id,
       remark: 1,
@@ -130,17 +147,31 @@ async function fetchExamAndInitResult() {
 
 function getStepByUser() {
   switch (true) {
+    case user.userInfo.integral !== 0:
+      step.value = 5;
+      break;
     case user.userInfo.number === 1:
       step.value = 3;
       break;
     case !!user.userInfo.yuliutwo && !!user.userInfo.yuliuone:
       step.value = 2;
       break;
+
     default:
       step.value = 1;
   }
 }
-
+async function handleCertificateSuccess() {
+  await uni.showModal({
+    title: "恭喜您",
+    content: "认证成功，等待管理员审核通过",
+    showCancel: false,
+    confirmText: "返回主页",
+  });
+  uni.reLaunch({
+    url: "/pages/index/index",
+  });
+}
 async function handleUploadIdCardPics(type: "yuliuone" | "yuliutwo") {
   const chooseAndUpload = () =>
     new Promise((resolve, reject) => {
@@ -178,7 +209,7 @@ async function handleNextQuestionOrFinished() {
   }
 }
 
-function handleNextStep() {
+async function handleNextStep() {
   switch (step.value) {
     case 1:
       submitFunc.handleIdCardSubmit();
@@ -190,7 +221,8 @@ function handleNextStep() {
       handleNextQuestionOrFinished();
       break;
     case 4:
-      submitFunc.handleExamSubmit();
+      await submitFunc.handleSubmitExamResult();
+      handleCertificateSuccess();
       break;
     case 5:
       uni.reLaunch({
@@ -258,7 +290,7 @@ onLoad(async () => {
   await user.updateUser();
   form.yuliuone = user.userInfo.yuliuone;
   form.yuliutwo = user.userInfo.yuliutwo;
-  // getStepByUser();
+  getStepByUser();
   fetchExamAndInitResult();
   fetchVideoUrl();
 });
@@ -368,7 +400,11 @@ onLoad(async () => {
               <sar-progress-circle
                 :percent="
                   examList.length > 0
-                    ? (rightExamItemCount / examList.length) * 100
+                    ? Number(
+                        ((rightExamItemCount / examList.length) * 100).toFixed(
+                          2,
+                        ),
+                      )
                     : 0
                 "
               />
@@ -385,7 +421,11 @@ onLoad(async () => {
             <view
               class="flex items-center justify-center flex-col gap-y-18px px-8px py-36px bg-white rounded-8px"
             >
-              等待管理员审核
+              <sar-tag
+                root-class="!text-16px"
+                :theme="reviewResultInfo.theme as any"
+                >{{ reviewResultInfo.label }}</sar-tag
+              >
             </view>
           </template>
           <sar-button
