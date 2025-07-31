@@ -155,7 +155,7 @@ onShareAppMessage(() => {
     imageUrl: shareMode.value ? imgRes.inviteUserImg : imgRes.inviteCraftsImg,
   };
 });
-
+onShareTimeline(() => ({}));
 function openEditPriceDialog() {
   specsEditDialogShow.value = true;
 }

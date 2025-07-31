@@ -153,9 +153,9 @@ async function queryUnits() {
   }
 }
 
-onShareAppMessage(() => {
-  return {};
-});
+onShareAppMessage(() => ({}));
+onShareTimeline(() => ({}));
+
 onLoad(() => {
   queryUnits();
 });

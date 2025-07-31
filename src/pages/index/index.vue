@@ -31,6 +31,12 @@ const certDialogVisible = ref(false);
 const newRequirementCount = ref(0);
 const { screenHeight } = uni.getWindowInfo();
 function handleCraftManRegistration() {
+  if (!user.isLogin) {
+    uni.navigateTo({
+      url: "/pages-sub/login/index",
+    });
+    return;
+  }
   uni.navigateTo({
     url: "/pages-sub/craft_man_reg/index",
   });
@@ -71,13 +77,13 @@ const bannerTextList = ref([
   },
 ]);
 onShow(() => {
+  fetchManCount();
   if (!user.isLogin) return;
   user.updateUser();
   if (isCrafts.value) fetchRequirementCount();
 });
-onShareAppMessage(() => {
-  return {};
-});
+onShareAppMessage(() => ({}));
+onShareTimeline(() => ({}));
 </script>
 
 <template>

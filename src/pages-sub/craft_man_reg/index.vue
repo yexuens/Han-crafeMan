@@ -16,12 +16,12 @@ import { imgRes } from "@/constants";
 import { toast } from "@/utils/toast";
 import { useUserStore } from "@/store";
 function gotoConfirm() {
+  if (user.userInfo.integral !== 0) {
+    return;
+  }
   uni.navigateTo({
     url: "/pages-sub/craft_man_reg_auth/index",
   });
-}
-function goToAuthentication() {
-  toast.info("请先确认合同");
 }
 usePageAuth();
 const user = useUserStore();
@@ -56,7 +56,7 @@ const { screenHeight } = uni.getWindowInfo();
             @click="gotoConfirm"
             class="go_to_confirm_btn flex items-center justify-center text-14px text-white font-bold"
           >
-            去确认
+            {{ user.userInfo.integral !== 0 ? "待审核" : "去确认" }}
           </view>
         </view>
         <image
@@ -65,19 +65,21 @@ const { screenHeight } = uni.getWindowInfo();
           :src="imgRes.squirrelFront"
         />
         <view
-          @click="goToAuthentication"
           class="w-full flex items-center justify-between rounded-12px bg-[#EAF7EF] px-24px py-32px"
         >
           <view class="flex flex-col gap-y-7px">
             <view class="text-18px text-[#4D99FF] font-bold">
               第二步 信息填写
             </view>
-            <view class="text-14px text-[#979797]"> 尚未提交资料 </view>
+            <view class="text-14px text-[#979797]">
+              {{ user.userInfo.integral !== 0 ? "已填写信息" : "尚未填写信息" }}
+            </view>
           </view>
           <view
+            @click="gotoConfirm"
             class="goto_auth_btn flex items-center justify-center text-14px text-white font-bold"
           >
-            去认证
+            {{ user.userInfo.integral !== 0 ? "待审核" : "去填写" }}
           </view>
         </view>
       </view>
