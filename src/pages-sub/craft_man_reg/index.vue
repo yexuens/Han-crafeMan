@@ -22,6 +22,8 @@ function gotoConfirm() {
 function goToAuthentication() {
   toast.info("请先确认合同");
 }
+usePageAuth();
+
 const { screenHeight } = uni.getWindowInfo();
 </script>
 

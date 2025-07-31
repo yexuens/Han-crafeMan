@@ -11,7 +11,7 @@ export const imgRes = {
     "https://cdn.juesedao.cn/mdy/0f0b85025da3443e8f855f5059c3a9c7",
   orderReceivingCenter:
     "https://cdn.juesedao.cn/mdy/f0dc976c20884b65a8cf311b1be4b1fd",
-  longTitle: "https://cdn.juesedao.cn/mdy/01e7335b250842b2b0007eec2432ac88",
+  longTitle: "https://cdn.juesedao.cn/mdy/59a2f456b258441b929ba71aa2551c97",
   shortTitle: "https://cdn.juesedao.cn/mdy/d0d6bb9c0376451ab1e2c4a01a438ebb",
   publishTopImg: "https://cdn.juesedao.cn/mdy/a4ab527eb8424c1bb51d4ad74f646576",
   hansTitleImg: "https://cdn.juesedao.cn/mdy/dba01cd4d2f74317a6ba1a670650c585",

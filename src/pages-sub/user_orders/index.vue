@@ -78,6 +78,7 @@ function redirectToPublish() {
     url: "/pages/publish/index",
   });
 }
+usePageAuth();
 
 async function fetchData({
   withoutStatus = false,

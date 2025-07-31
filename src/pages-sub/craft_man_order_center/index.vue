@@ -26,6 +26,7 @@ import { OrderStatus } from "@/enums";
 import { useUserStore } from "@/store";
 
 const { screenHeight } = uni.getWindowInfo();
+usePageAuth();
 
 const tabMenuBtnList = ref([
   {

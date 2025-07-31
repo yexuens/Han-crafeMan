@@ -103,6 +103,7 @@ function getUserAvatar(e) {
     form.wxPhoto = url;
   });
 }
+usePageAuth();
 
 async function getPhoneNumberAndSubmit({ detail }) {
   return getPhoneNumber(detail).then(({ phoneNumber, openid }) => {

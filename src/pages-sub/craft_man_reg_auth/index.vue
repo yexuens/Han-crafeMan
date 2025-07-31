@@ -38,6 +38,7 @@ const contractImages = ref([]);
 const formValidation = computed(
   () => !(form.name && form.city && form.district),
 );
+usePageAuth();
 
 async function fetchContractImages() {
   const { data } = await queryCraftsAuthInfo({

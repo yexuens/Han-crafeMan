@@ -170,6 +170,8 @@ onLoad((opt) => {
     id.value = opt.id;
   }
 });
+usePageAuth();
+
 onShow(async () => {
   await getDetail(id.value);
   validateDetail();

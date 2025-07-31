@@ -26,7 +26,12 @@ function handleNavigate() {
     <view @click="handleNavigate">
       <custom-icon icon-name="leftArrowIconWhite" />
     </view>
-    <image :src="imgRes.longTitle" mode="aspectFit" class="h-full w-65%" />
+    <image
+      :src="imgRes.longTitle"
+      mode="aspectFit"
+      class="w-120px ml-12px"
+      :style="`height:${menuButtonArea.height}px`"
+    />
   </view>
   <!--  <view :style="`min-height: calc( 100vh - ${menuButtonArea.top + menuButtonArea.height}px )`"> -->
   <view class="relative">

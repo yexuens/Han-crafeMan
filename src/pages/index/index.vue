@@ -81,13 +81,19 @@ onShareAppMessage(() => {
   >
     <view class="px-12px">
       <!--    TopBar -->
-      <view class="flex flex-col gap-y-4px text-18px text-white">
-        <view> 铺贴瓷砖 </view>
-        <view class="font-bold"> 上汉工华匠 找工更方便 </view>
+      <view
+        class="flex items-center gap-y-4px text-18px text-white"
+        :style="`height:${menuButtonArea.height}px`"
+      >
+        <image
+          class="w-240px"
+          mode="widthFix"
+          src="https://cdn.juesedao.cn/mdy/1ce89fd31d7a4e5da0a5d7e7c02640d8"
+        />
       </view>
       <!--    Craft Man Count Card -->
       <view
-        class="mt-12px h-[84px] w-[351px] flex shrink-0 flex-col justify-between border-b-[1px] border-b-[#FFF] rounded-[12px] border-b-solid bg-gradient-[90deg,#EEF0FF_0%,#FFFAEE_44.19%] bg-gradient-linear p-16px"
+        class="mt-26px h-[84px] w-[351px] flex shrink-0 flex-col justify-between border-b-[1px] border-b-[#FFF] rounded-[12px] border-b-solid bg-gradient-[90deg,#EEF0FF_0%,#FFFAEE_44.19%] bg-gradient-linear p-16px"
       >
         <view class="flex items-center justify-between pr-8px">
           <view class="flex gap-x-8px">
@@ -211,7 +217,7 @@ onShareAppMessage(() => {
   background: linear-gradient(
     180deg,
     #fc7c44 10.05%,
-    #f7ded2 24.44%,
+    #f6f6f6 24.44%,
     #f6f6f6 100.12%
   );
   z-index: -3;

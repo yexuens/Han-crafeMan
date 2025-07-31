@@ -3,7 +3,6 @@
 {
   "layout": "customBar",
   "needLogin": true,
-
   "style": {
     // 'custom' 表示开启自定义导航栏，默认 'default'
     "navigationStyle": "custom",
@@ -32,6 +31,7 @@ const form = reactive({
   yuliutwo: "", //身份证照片国徽面
   progress: 0,
 });
+usePageAuth();
 const currentExamItemIndex = ref(0);
 const isFinishedLearn = computed(() => form.progress >= 94);
 const reviewResultInfo = computed(() => {
