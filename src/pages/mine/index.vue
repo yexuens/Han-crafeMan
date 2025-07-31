@@ -46,7 +46,7 @@ const featureList = [
     },
   },
   {
-    label: "邀请工人",
+    label: "邀请工匠",
     iconUrl: "https://cdn.juesedao.cn/mdy/e2452f5fa67a432c9774aa4525ca1b71",
     openType: "share",
     handleFunc() {
@@ -108,10 +108,8 @@ onPageScroll((e) => {
 });
 onPullDownRefresh(async () => {
   if (!user.isLogin) return;
-
   await fetchData();
   await fetchNotice();
-
   uni.stopPullDownRefresh();
 });
 
@@ -244,6 +242,9 @@ function openEditPriceDialog() {
           <custom-icon :size="20" icon-name="noticeIcon" />
           <text>{{ noticeData }}</text>
         </view>
+      </view>
+      <view class="text-#c9c6c6 mx-auto mt-24px mb-24px text-12px"
+        >-蜜多云科技提供技术支持-
       </view>
     </view>
   </view>

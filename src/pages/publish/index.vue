@@ -5,7 +5,9 @@
     // 'custom' 表示开启自定义导航栏，默认 'default'
     "navigationStyle": "custom",
     "navigationBarTitleText": "首页",
+    "disableScroll": true,
   },
+  "disableScroll": true,
 }
 </route>
 
@@ -21,9 +23,9 @@ import {
   showZodError,
 } from "@/schemas";
 import { useUserStore } from "@/store";
-import { toast } from "@/utils/toast";
 import { queryUnitList } from "@/service/system";
 import { isNotEmpty } from "@/utils";
+import { useSafeAreaStyle } from "@/composables/useSafeAreaStyle";
 
 const customUnit = reactive<IAddCustomSpecs>({
   unit: "",
@@ -58,7 +60,19 @@ const getSpecs = () =>
 async function handlePublish() {
   try {
     if (!user.isLogin) {
-      toast.info("请先登录");
+      uni.showModal({
+        title: "提示",
+        content: "请先登录",
+        cancelText: "稍后登录",
+        confirmText: "去登录",
+        success: (res) => {
+          if (res.confirm) {
+            uni.navigateTo({
+              url: "/pages-sub/login/index",
+            });
+          }
+        },
+      });
       return;
     }
     PublishRequirement.parse(form);
@@ -92,7 +106,7 @@ function addCustomUnit() {
     showZodError(error);
     return;
   }
-  unitList.value.push({
+  unitList.value.unshift({
     unit: customUnit.unit,
     refPrice: Number(customUnit.price),
     userPrice: Number(customUnit.price),
@@ -145,6 +159,7 @@ onShareAppMessage(() => {
 onLoad(() => {
   queryUnits();
 });
+const menuButtonArea = uni.getMenuButtonBoundingClientRect();
 </script>
 
 <template>
@@ -153,13 +168,15 @@ onLoad(() => {
     class="absolute left-0 top-0 h-full w-screen -z-1"
     mode="widthFix"
   />
-  <safe-area-layout>
+  <view
+    :style="`padding-top: ${menuButtonArea.top + menuButtonArea.height}px;`"
+  >
     <view
       class="absolute mt-12px w-screen flex items-center justify-center rounded-16px bg-primary-500 px-40px pb-32px pt-16px text-18px text-white -z-1"
     >
       快速简算
     </view>
-    <view class="z-11 mt-68px rounded-t-17px bg-white px-16px pt-40px">
+    <view class="z-11 mt-58px rounded-t-17px bg-white px-16px pt-40px">
       <view class="flex items-center justify-between">
         <view class="text-18px font-600"> 需求填写</view>
         <icon-button
@@ -186,7 +203,7 @@ onLoad(() => {
             </sar-input>
           </sar-form-item>
           <sar-form-item root-class="!py-24px">
-            <view class="flex items-center justify-between">
+            <view class="flex items-center justify-between pb-6px">
               <view>
                 请选择瓷砖规格
                 <text style="color: var(--sar-form-item-star-color)"> *</text>
@@ -195,55 +212,60 @@ onLoad(() => {
                 已选择（{{ form.pickedSpecs.length }} / {{ unitList.length }}）
               </view>
             </view>
-            <view
-              class="grid grid-cols-2 mt-12px h-160px gap-4 overflow-y-auto"
-            >
+            <scroll-view scroll-y class="hide-scrollbar">
               <view
-                v-for="(unit, index) in unitList"
-                :key="index"
-                class="h-70px flex transition-all duration-200 ease-in-out"
-                @click="toggleUnit(unit.unit)"
+                class="grid grid-cols-2 mt-12px gap-4 h-160px hide-scrollbar"
               >
                 <view
-                  v-if="form.pickedSpecs.includes(unit.unit)"
-                  class="h-full w-full rounded-7px bg-primary-500 px-16px py-8px text-white tracking-wider"
+                  v-for="(unit, index) in unitList"
+                  :key="index"
+                  class="h-70px flex transition-all duration-200 ease-in-out"
+                  @click="toggleUnit(unit.unit)"
                 >
                   <view
-                    class="border-b-0.5px border-b-white border-b-solid pb-1px text-14px"
-                  >
-                    {{ unit.unit }}
-                  </view>
-                  <view
-                    class="mt-1px flex items-center justify-between text-12px"
-                    style="line-height: 1.3"
+                    v-if="form.pickedSpecs.includes(unit.unit)"
+                    class="h-full w-full rounded-7px bg-primary-500 px-16px py-8px text-white tracking-wider"
                   >
                     <view
-                      class="flex-1 border-r-0.5px border-r-white border-r-solid"
+                      class="border-b-0.5px border-b-white border-b-solid pb-1px text-14px"
                     >
-                      <view> 参考价</view>
-                      <view class="font-500"> ${{ unit.refPrice }}/㎡</view>
+                      {{ unit.unit }}
                     </view>
-                    <view class="flex flex-1 flex-col items-center" @click.stop>
-                      <view> 自主出价</view>
-                      <view class="flex items-center gap-x-1px font-500">
-                        $
-                        <input
-                          v-model="unit.userPrice"
-                          class="user-price-input"
-                        />
-                        /㎡
+                    <view
+                      class="mt-1px flex items-center justify-between text-12px"
+                      style="line-height: 1.3"
+                    >
+                      <view
+                        class="flex-1 border-r-0.5px border-r-white border-r-solid"
+                      >
+                        <view> 参考价</view>
+                        <view class="font-500"> ${{ unit.refPrice }}/㎡</view>
+                      </view>
+                      <view
+                        class="flex flex-1 flex-col items-center"
+                        @click.stop
+                      >
+                        <view> 自主出价</view>
+                        <view class="flex items-center gap-x-1px font-500">
+                          $
+                          <input
+                            v-model="unit.userPrice"
+                            class="user-price-input"
+                          />
+                          /㎡
+                        </view>
                       </view>
                     </view>
                   </view>
-                </view>
-                <view
-                  v-else
-                  class="my-auto h-52px w-full flex items-center justify-center rounded-7px bg-[#F6F6F6] text-14px text-[#666]"
-                >
-                  {{ unit.unit }}
+                  <view
+                    v-else
+                    class="my-auto truncate42 h-52px w-full flex items-center justify-center rounded-7px bg-[#F6F6F6] text-14px text-[#666]"
+                  >
+                    {{ unit.unit }}
+                  </view>
                 </view>
               </view>
-            </view>
+            </scroll-view>
           </sar-form-item>
           <!--           自定义规格添加 -->
           <view class="mb-28px mt-8px flex items-center justify-between">
@@ -272,7 +294,7 @@ onLoad(() => {
         </sar-form>
       </view>
     </view>
-  </safe-area-layout>
+  </view>
 </template>
 
 <style lang="scss" scoped>

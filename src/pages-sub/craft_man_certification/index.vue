@@ -308,7 +308,7 @@ onLoad(async () => {
           <template v-if="step === 1">
             <view class="flex flex-col items-center gap-y-30px">
               <view
-                class="h-160px w-240px flex gap-y-12px justify-center flex-col"
+                class="h-180px w-240px flex gap-y-12px justify-center flex-col"
                 @click="handleUploadIdCardPics('yuliuone')"
               >
                 <view>人像面：</view>
@@ -316,14 +316,14 @@ onLoad(async () => {
                   :src="
                     form.yuliuone
                       ? form.yuliuone
-                      : 'https://cdn.juesedao.cn/mdy/af5d10481fb54f389440a04a7e0e0d1a'
+                      : 'https://cdn.juesedao.cn/mdy/1da86280c2f74556b1e401ed5e8459c8'
                   "
                   class="h-full w-full rounded-8px"
                   mode="aspectFill"
                 />
               </view>
               <view
-                class="h-160px w-240px flex gap-y-12px justify-center flex-col"
+                class="h-180px w-240px flex gap-y-12px justify-center flex-col"
                 @click="handleUploadIdCardPics('yuliutwo')"
               >
                 <view>国徽面：</view>
@@ -331,7 +331,7 @@ onLoad(async () => {
                   :src="
                     form.yuliutwo
                       ? form.yuliutwo
-                      : 'https://cdn.juesedao.cn/mdy/af5d10481fb54f389440a04a7e0e0d1a'
+                      : 'https://cdn.juesedao.cn/mdy/f7ff2e88ed8e43aa907544e9b7f2f070'
                   "
                   class="h-full w-full rounded-8px"
                   mode="aspectFill"

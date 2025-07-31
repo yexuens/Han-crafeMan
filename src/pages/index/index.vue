@@ -76,7 +76,7 @@ onShareAppMessage(() => {
 
 <template>
   <view
-    class="bg"
+    class="bg flex flex-col"
     :style="`padding-top: ${menuButtonArea.top}px;height: ${screenHeight}px`"
   >
     <view class="px-12px">
@@ -165,6 +165,9 @@ onShareAppMessage(() => {
           mode="aspectFill"
         />
       </view>
+    </view>
+    <view class="text-#c9c6c6 mx-auto mt-24px text-12px"
+      >-蜜多云科技提供技术支持-
     </view>
   </view>
   <content-popup v-model="popupShow" />
