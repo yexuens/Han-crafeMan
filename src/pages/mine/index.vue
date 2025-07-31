@@ -179,7 +179,7 @@ function openEditPriceDialog() {
               round
               theme="primary"
             >
-              {{ user.userInfo.role === 0 ? "业主" : "工匠" }}
+              {{ !user.userInfo?.name ? "业主" : "工匠" }}
             </sar-tag>
           </view>
           <view

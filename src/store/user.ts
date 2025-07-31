@@ -25,6 +25,7 @@ interface IUserInfo {
   yuliutwo: string;
   remark: number | null;
   number: number | null;
+  name: string;
 }
 
 interface IWxLoginResp {
@@ -54,6 +55,7 @@ const initUser: IUserInfo = {
   wxPhoto: "",
   remark: null,
   number: null,
+  name: "",
 };
 
 export const useUserStore = defineStore(
