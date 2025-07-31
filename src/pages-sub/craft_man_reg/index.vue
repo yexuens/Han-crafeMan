@@ -14,6 +14,7 @@
 <script setup lang="ts">
 import { imgRes } from "@/constants";
 import { toast } from "@/utils/toast";
+import { useUserStore } from "@/store";
 function gotoConfirm() {
   uni.navigateTo({
     url: "/pages-sub/craft_man_reg_auth/index",
@@ -23,7 +24,7 @@ function goToAuthentication() {
   toast.info("请先确认合同");
 }
 usePageAuth();
-
+const user = useUserStore();
 const { screenHeight } = uni.getWindowInfo();
 </script>
 
@@ -47,7 +48,9 @@ const { screenHeight } = uni.getWindowInfo();
             <view class="text-18px text-[#4D99FF] font-bold">
               第一步 合同确认
             </view>
-            <view class="text-14px text-[#979797]"> 尚未确认合同 </view>
+            <view class="text-14px text-[#979797]">
+              {{ user.userInfo.integral !== 0 ? "已确认合同" : "尚未确认合同" }}
+            </view>
           </view>
           <view
             @click="gotoConfirm"

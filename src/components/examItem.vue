@@ -126,6 +126,7 @@ function getOptionClass(item: IExamItemOption) {
         "
       >
         <text> {{ item.label }}</text>
+        <!--        选择了选项且选项是正确的选项-->
         <custom-icon
           v-if="
             questionType === 1
@@ -136,6 +137,7 @@ function getOptionClass(item: IExamItemOption) {
           "
           icon-name="rightIcon"
         />
+        <!--        选择了选项但不是正确的选项-->
         <custom-icon
           v-if="
             questionType === 1

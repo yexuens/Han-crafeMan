@@ -33,20 +33,38 @@ const screenHeight = uni.getSystemInfoSync().windowHeight;
 const noticeData = ref("");
 const featureList = [
   {
+    label: "接单中心",
+    showFlag: () => {
+      return user.userInfo?.role === 1 && user.userInfo?.remark === 1;
+    },
+    openType: "none",
+    iconUrl: "https://cdn.juesedao.cn/mdy/ea0a4c98c9e64315b620c0f00bef1502\n",
+    handleFunc: () => {
+      uni.navigateTo({
+        url: "/pages-sub/craft_man_order_center/index",
+      });
+    },
+  },
+  {
+    openType: "none",
     label: "我的资料",
+    showFlag: () => true,
     iconUrl: "https://cdn.juesedao.cn/mdy/47c7c9d7935b41e69ee9727a0101c138",
     handleFunc: () => navigateToEditProfile(),
   },
+
   {
     label: "邀请业主",
     iconUrl: "https://cdn.juesedao.cn/mdy/93afb76a8c1c4060b18cdd85be574bed",
     openType: "share",
+    showFlag: () => true,
     handleFunc() {
       shareMode.value = 1;
     },
   },
   {
     label: "邀请工匠",
+    showFlag: () => true,
     iconUrl: "https://cdn.juesedao.cn/mdy/e2452f5fa67a432c9774aa4525ca1b71",
     openType: "share",
     handleFunc() {
@@ -129,6 +147,7 @@ async function handleEditPriceFinished({ data, isSuccess }) {
     fetchData();
   }
 }
+
 const specsEditDialogShow = ref(false);
 onShareAppMessage(() => {
   return {
@@ -218,19 +237,20 @@ function openEditPriceDialog() {
         <view :class="user.isLogin ? 'mt-40px' : 'mt-0'">
           <view class="font-500"> 常用功能</view>
           <view class="grid grid-cols-4 mt-18px gap-40px">
-            <button
-              v-for="(item, index) in featureList"
-              :key="index"
-              :open-type="item?.openType"
-              class="flex flex-col items-center justify-center !bg-transparent !p-0"
-              hover-class="none"
-              @click="item?.handleFunc"
-            >
-              <custom-icon :custom-url="item.iconUrl" :size="22" />
-              <view class="text-12px opacity-70">
-                {{ item.label }}
-              </view>
-            </button>
+            <block v-for="(item, index) in featureList" :key="index">
+              <button
+                v-if="item.showFlag()"
+                :open-type="item?.openType"
+                class="flex flex-col items-center justify-center !bg-transparent !p-0"
+                hover-class="none"
+                @click="item?.handleFunc"
+              >
+                <custom-icon :custom-url="item.iconUrl" :size="22" />
+                <view class="text-12px opacity-70">
+                  {{ item.label }}
+                </view>
+              </button>
+            </block>
           </view>
         </view>
       </view>

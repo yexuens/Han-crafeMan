@@ -16,6 +16,7 @@ import { isNotEmpty } from "@/utils";
 import { updateUserProfile } from "@/service/user";
 import { useUserStore } from "@/store";
 import { toast } from "@/utils/toast";
+import { CraftsAuthIntegralStatus } from "@/enums/crafts";
 
 const { screenHeight } = uni.getWindowInfo();
 const stepList = [
@@ -61,17 +62,26 @@ async function handleSubmit() {
   const { code } = await updateUserProfile({
     ...form,
     userId: user.userInfo.id,
+    integral: CraftsAuthIntegralStatus.Pending,
   });
   if (code !== 1) {
-    toast.info("认证失败");
-
+    toast.info("提交失败，请联系客服");
     return;
   }
-  toast.info("认证成功");
-  await user.updateUser();
-  uni.reLaunch({
-    url: "/pages/index/index",
-  });
+  uni
+    .showModal({
+      title: "提示",
+      content: "提交成功，等待管理员审核通过",
+      showCancel: false,
+    })
+    .then((res) => {
+      if (res.confirm) {
+        user.updateUser();
+        uni.reLaunch({
+          url: "/pages/index/index",
+        });
+      }
+    });
 }
 
 onLoad(() => {
@@ -141,7 +151,7 @@ onLoad(() => {
             root-class="!w-full !mt-30px"
             @click="handleSubmit"
           >
-            确认信息完成工匠注册
+            确认信息并提交审核
           </sar-button>
         </view>
       </view>

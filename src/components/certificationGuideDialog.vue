@@ -26,6 +26,9 @@ function beforeClose() {
   return new Promise((resolve) => setTimeout(resolve, 300)); // Reduced delay for smoother feel
 }
 const user = useUserStore();
+watchEffect(() => {
+  console.log(user.userInfo);
+});
 // The guide list data remains the same.
 const guideList = computed(() => [
   {

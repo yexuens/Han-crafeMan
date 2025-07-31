@@ -20,9 +20,6 @@ export const stepList = ref([
   {
     label: "确认考试",
   },
-  {
-    label: "等待管理员审核",
-  },
 ]);
 export function getExamResultInit(_examList: any) {
   return _examList.map((item) => ({

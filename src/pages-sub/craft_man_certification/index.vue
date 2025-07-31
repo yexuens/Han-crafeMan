@@ -25,6 +25,7 @@ const user = useUserStore();
 const step = ref(1);
 const examList = ref([]);
 const examResultList = ref<IExamResult[]>([]);
+const isPass = ref(false);
 const videoUrl = ref("");
 const form = reactive({
   yuliuone: "", //身份证照片人像面
@@ -83,9 +84,7 @@ const nextStepBtnLabel = computed(() => {
         ? "下一题"
         : "查看结果";
     case 4:
-      return "确认提交";
-    case 5:
-      return "返回主页";
+      return isPass.value ? "认证通过，去接单" : "返回主页";
     default:
       return "下一步";
   }
@@ -117,11 +116,7 @@ const submitFunc = {
       userId: user.userInfo.id,
       remark: 1,
       delFlag: `${rightExamItemCount.value}/${examList.value.length}`,
-      integral: 1,
     });
-    if (code === 1) {
-      step.value += 1;
-    }
   },
 };
 
@@ -137,27 +132,17 @@ async function fetchExamAndInitResult() {
 
 function getStepByUser() {
   switch (true) {
-    case user.userInfo.integral !== 0:
-      step.value = 5;
-      break;
     case user.userInfo.number === 1:
       step.value = 3;
       break;
     case !!user.userInfo.yuliutwo && !!user.userInfo.yuliuone:
       step.value = 2;
       break;
-
     default:
       step.value = 1;
   }
 }
 async function handleCertificateSuccess() {
-  await uni.showModal({
-    title: "恭喜您",
-    content: "提交成功，等待管理员审核通过",
-    showCancel: false,
-    confirmText: "返回主页",
-  });
   uni.reLaunch({
     url: "/pages/index/index",
   });
@@ -183,7 +168,7 @@ async function handleUploadIdCardPics(type: "yuliuone" | "yuliutwo") {
   }
 }
 
-async function handleNextQuestionOrFinished() {
+async function handleNextQuestionOrSubmit() {
   const current = examResultList.value[currentExamItemIndex.value];
   if (!current.multiConfirm && current.questionType === 2) {
     const { confirm } = await uni.showModal({
@@ -205,6 +190,10 @@ async function handleNextQuestionOrFinished() {
   if (currentExamItemIndex.value < examResultList.value.length - 1) {
     currentExamItemIndex.value += 1;
   } else {
+    isPass.value = rightExamItemCount.value / examList.value.length >= 0.6;
+    if (isPass.value) {
+      submitFunc.handleSubmitExamResult();
+    }
     step.value += 1;
   }
 }
@@ -218,16 +207,10 @@ async function handleNextStep() {
       submitFunc.handleCompleteVideoSubmit();
       break;
     case 3:
-      handleNextQuestionOrFinished();
+      handleNextQuestionOrSubmit();
       break;
     case 4:
-      await submitFunc.handleSubmitExamResult();
       handleCertificateSuccess();
-      break;
-    case 5:
-      uni.reLaunch({
-        url: "/pages/index/index",
-      });
       break;
     default:
       break;
@@ -272,15 +255,10 @@ function handleItemPicked({
 }
 
 async function resetExam() {
-  const { confirm } = await uni.showModal({
-    title: "提示",
-    content: "您确定重新答题吗？",
-  });
-  if (confirm) {
-    examResultList.value = getExamResultInit(examList.value);
-    step.value = 3;
-    currentExamItemIndex.value = 0;
-  }
+  examResultList.value = getExamResultInit(examList.value);
+  step.value = 3;
+  currentExamItemIndex.value = 0;
+  rightExamItemCount.value = 0;
 }
 async function fetchVideoUrl() {
   const { records } = await getBanner(BannerModule.video);
@@ -363,8 +341,9 @@ onLoad(async () => {
               step === 3 && isNotEmpty(examResultList) && isNotEmpty(examList)
             "
           >
-            <view class="mb-12px font-bold">
+            <view class="mb-12px font-bold flex items-center gap-x-8px">
               {{ currentExamItemIndex + 1 }}/{{ examList.length }}题
+              <text class="text-red-5 text-12px">(通过条件：正确率>60%)</text>
             </view>
             <exam-item
               v-for="(item, index) in examList"
@@ -396,7 +375,15 @@ onLoad(async () => {
             <view
               class="flex items-center justify-center flex-col gap-y-18px px-8px py-36px bg-white rounded-8px"
             >
-              <view class="font-bold">考试结果</view>
+              <view class="font-bold flex items-center">
+                <view>考试结果：</view>
+                <view
+                  class="text-14px"
+                  :class="[isPass ? 'text-green-5' : 'text-red-5']"
+                >
+                  {{ isPass ? "通过" : "不通过" }}
+                </view>
+              </view>
               <sar-progress-circle
                 :percent="
                   examList.length > 0
@@ -412,20 +399,9 @@ onLoad(async () => {
                 答题情况
                 {{ rightExamItemCount }}/{{ examList.length }}
               </view>
-              <sar-button block theme="info" @click="resetExam"
+              <sar-button v-if="!isPass" block theme="info" @click="resetExam"
                 >重新答题
               </sar-button>
-            </view>
-          </template>
-          <template v-if="step === 5">
-            <view
-              class="flex items-center justify-center flex-col gap-y-18px px-8px py-36px bg-white rounded-8px"
-            >
-              <sar-tag
-                root-class="!text-16px"
-                :theme="reviewResultInfo.theme as any"
-                >{{ reviewResultInfo.label }}</sar-tag
-              >
             </view>
           </template>
           <sar-button

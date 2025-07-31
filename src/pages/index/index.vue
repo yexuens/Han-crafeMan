@@ -17,8 +17,7 @@ import { useUserStore } from "@/store";
 import { queryRequirementCount } from "@/service/requirement";
 const craftManCount = ref(0);
 const current = ref(0);
-const isCraftMan = computed(() => user.userInfo?.role === 1);
-const isFinishCraftAuth = computed(() => user.userInfo?.name);
+const isCrafts = computed(() => user.userInfo?.role === 1);
 const user = useUserStore();
 const popupShow = ref(false);
 const menuButtonArea = uni.getMenuButtonBoundingClientRect();
@@ -27,6 +26,8 @@ const bannerList = [
   "https://cdn.juesedao.cn/mdy/6d62ae3a3fec4e39933010403d456b54",
   "https://cdn.juesedao.cn/mdy/2a81d7f356fa44d981e77ecc77220a67",
 ];
+const certDialogVisible = ref(false);
+
 const newRequirementCount = ref(0);
 const { screenHeight } = uni.getWindowInfo();
 function handleCraftManRegistration() {
@@ -47,6 +48,10 @@ async function fetchRequirementCount() {
   }
 }
 function navigateToOrderCenter() {
+  if (user.userInfo.remark !== 1) {
+    certDialogVisible.value = true;
+    return;
+  }
   uni.navigateTo({
     url: "/pages-sub/craft_man_order_center/index",
   });
@@ -66,8 +71,9 @@ const bannerTextList = ref([
   },
 ]);
 onShow(() => {
-  fetchManCount();
-  if (isFinishCraftAuth.value) fetchRequirementCount();
+  if (!user.isLogin) return;
+  user.updateUser();
+  if (isCrafts.value) fetchRequirementCount();
 });
 onShareAppMessage(() => {
   return {};
@@ -75,6 +81,8 @@ onShareAppMessage(() => {
 </script>
 
 <template>
+  <certification-guide-dialog v-model="certDialogVisible" />
+
   <view
     class="bg flex flex-col"
     :style="`padding-top: ${menuButtonArea.top}px;height: ${screenHeight}px`"
@@ -178,7 +186,7 @@ onShareAppMessage(() => {
   </view>
   <content-popup v-model="popupShow" />
   <image
-    v-if="!user.isLogin || !isFinishCraftAuth"
+    v-if="!user.isLogin || !isCrafts"
     class="fixed bottom-100px right-0 h-40px w-100px"
     mode="widthFix"
     :src="imgRes.registerCraftButton"
